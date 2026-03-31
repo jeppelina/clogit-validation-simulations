@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+
+# Large R objects
+results/*.rds
+
+# Internal development notes
+CLAUDE.md
+WRITING_PLAN.md
+
+# Runtime logs
+sim_log.txt
+
+# Module 5 interpretive/log files (preliminary, can become stale)
+module5/results/module5_interpretation.md
+module5/results/module5_validation.log
+
+# Interpretive summaries (can become stale; CSVs are the ground truth)
+results/*_summary.md
+results/full_results_report.md
+
+# LaTeX manuscript (maintained separately)
+Simulation_Supplement/
