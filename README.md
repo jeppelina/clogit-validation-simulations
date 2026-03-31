@@ -1,4 +1,4 @@
-# Choice Model Validation — Monte Carlo Simulations
+# Choice Model Validation -- Monte Carlo Simulations
 
 Replication code for simulation studies validating conditional logit (clogit) models for assortative mating research. These simulations accompany the doctoral dissertation by Jesper Lindmarker (Linköping University, Institute for Analytical Sociology).
 
@@ -6,9 +6,9 @@ Replication code for simulation studies validating conditional logit (clogit) mo
 
 The conditional logit model, rooted in McFadden's (1973) random utility theory, is a standard tool for estimating preference parameters from discrete choice data. It is widely used across fields: residential choice and neighbourhood sorting (Bruch & Mare, 2012), transport mode selection, and increasingly in demographic studies of partner choice and assortative mating (Jepsen & Jepsen, 2002; Haandrikman & van Wissen, 2012; Gullickson, 2021).
 
-In partner choice applications, each individual is modelled as selecting a partner from a constructed choice set drawn from the locally eligible population. The model estimates which characteristics of potential partners and of the dyad (educational similarity, shared ancestry, residential proximity) predict union formation. Because identification comes from within-individual variation — comparing the chosen partner to unchosen alternatives in the same choice set — the model controls for all characteristics of the focal individual that do not vary across alternatives. This makes conditional logit attractive for partner choice research: it can incorporate continuous covariates like residential distance, handle multiple sorting dimensions simultaneously, and yield coefficients that are interpretable as revealed preference parameters conditional on the opportunity structure defined by the choice set.
+In partner choice applications, each individual is modelled as selecting a partner from a constructed choice set drawn from the locally eligible population. The model estimates which characteristics of potential partners and of the dyad (educational similarity, shared ancestry, residential proximity) predict union formation. Because identification comes from within-individual variation -- comparing the chosen partner to unchosen alternatives in the same choice set -- the model controls for all characteristics of the focal individual that do not vary across alternatives. This makes conditional logit attractive for partner choice research: it can incorporate continuous covariates like residential distance, handle multiple sorting dimensions simultaneously, and yield coefficients that are interpretable as revealed preference parameters conditional on the opportunity structure defined by the choice set.
 
-These advantages rest on assumptions. The model treats partner choice as one-sided (each person picks independently, with no requirement that the chosen partner reciprocates). It assumes that the choice set accurately represents the relevant partner market. It assumes independence of irrelevant alternatives (IIA). And when used for mediation decomposition — adding variables sequentially to assess how much of educational homogamy operates through, say, workplace co-membership — it assumes that the sequential structure is not confounded by unobserved factors. These assumptions are well-known in the discrete choice literature but rarely tested quantitatively in the partner choice context.
+These advantages rest on assumptions. The model treats partner choice as one-sided (each person picks independently, with no requirement that the chosen partner reciprocates). It assumes that the choice set accurately represents the relevant partner market. It assumes independence of irrelevant alternatives (IIA). And when used for mediation decomposition -- adding variables sequentially to assess how much of educational homogamy operates through, say, workplace co-membership -- it assumes that the sequential structure is not confounded by unobserved factors. These assumptions are well-known in the discrete choice literature but rarely tested quantitatively in the partner choice context.
 
 This repository provides that test. We generate synthetic partner markets under known data-generating processes (DGPs), apply conditional logit exactly as in the empirical papers, and check whether the true preference parameters are recovered. Five modules target specific threats to identification:
 
@@ -102,7 +102,7 @@ The calibrated threshold approach is important: raw thresholds are meaningless a
     └── results/
 ```
 
-### utils.R — Shared Infrastructure
+### utils.R -- Shared Infrastructure
 
 All shared functions are in `utils.R`, organised in 17 sections:
 
@@ -184,15 +184,15 @@ Each row in a results CSV represents one parameter under one condition, summaris
 
 Tests whether clogit recovers homophily and group-preference parameters when education is unevenly distributed across groups of different sizes.
 
-**Conditions**: Four group compositions — balanced (33/33/33), moderate (50/30/20), unbalanced (70/20/10), extreme (85/10/5) — each with group-specific education distributions, tested under oracle and bilateral matching.
+**Conditions**: Four group compositions -- balanced (33/33/33), moderate (50/30/20), unbalanced (70/20/10), extreme (85/10/5) -- each with group-specific education distributions, tested under oracle and bilateral matching.
 
 **Result**: Under oracle, bias is near zero (< 1%) across all conditions. Under bilateral, edu_diff is overestimated by 33–47%, roughly constant across compositions.
 
-### Module 1b: Identification — Homophily vs Status Maximisation
+### Module 1b: Identification -- Homophily vs Status Maximisation
 
 Tests whether clogit can distinguish between two preference structures that produce superficially similar matching patterns.
 
-**Design**: Three DGPs (homophily, status_max, mixed) × four clogit specifications. The key insight is that ego characteristics are conditioned out by clogit strata, so alt_edu and |edu_diff| are not collinear — the absolute value introduces a nonlinearity that permits identification.
+**Design**: Three DGPs (homophily, status_max, mixed) × four clogit specifications. The key insight is that ego characteristics are conditioned out by clogit strata, so alt_edu and |edu_diff| are not collinear -- the absolute value introduces a nonlinearity that permits identification.
 
 **Result**: The correct specification recovers all parameters with < 1.5% bias. Misspecification produces detectable, directional bias: fitting a homophily model to status_max data yields a small spurious homophily coefficient (+0.127), while fitting a status model to homophily data correctly returns near-zero on alt_edu.
 
@@ -214,7 +214,7 @@ Tests the sequential mediation decomposition used in the dissertation (M0: educa
 
 **Part III**: Interaction tests (confounding × choice set size, confounding × group structure).
 
-**Core finding**: Under oracle, the education coefficient is robust across all conditions (bias < 5.4%); the workplace coefficient absorbs the confounding; mediation shares are stable but upward-biased. Under bilateral matching, education coefficient bias is ~45% but does not interact with confounding — the biases are additive.
+**Core finding**: Under oracle, the education coefficient is robust across all conditions (bias < 5.4%); the workplace coefficient absorbs the confounding; mediation shares are stable but upward-biased. Under bilateral matching, education coefficient bias is ~45% but does not interact with confounding -- the biases are additive.
 
 ### Module 4: Matching Mechanisms
 
