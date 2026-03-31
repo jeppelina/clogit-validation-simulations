@@ -1,16 +1,16 @@
-# Choice Model Validation -- Monte Carlo Simulations
+# Choice Model Validation: Monte Carlo Simulations
 
 Replication code for simulation studies validating conditional logit (clogit) models for assortative mating research. These simulations accompany the doctoral dissertation by Jesper Lindmarker (Linköping University, Institute for Analytical Sociology).
 
 ## Overview
 
-The conditional logit model, rooted in McFadden's (1973) random utility theory, is a standard tool for estimating preference parameters from discrete choice data. It is widely used across fields: residential choice and neighbourhood sorting (Bruch & Mare, 2012), transport mode selection, and increasingly in demographic studies of partner choice and assortative mating (Jepsen & Jepsen, 2002; Haandrikman & van Wissen, 2012; Gullickson, 2021).
+The conditional logit model, rooted in McFadden's (1973) random utility theory, estimates preference parameters from discrete choice data. It is used across fields: residential choice and neighbourhood sorting (Bruch & Mare, 2012), transport mode selection, and demographic studies of partner choice and assortative mating (Jepsen & Jepsen, 2002; Haandrikman & van Wissen, 2012; Gullickson, 2021).
 
-In partner choice applications, each individual is modelled as selecting a partner from a constructed choice set drawn from the locally eligible population. The model estimates which characteristics of potential partners and of the dyad (educational similarity, shared ancestry, residential proximity) predict union formation. Because identification comes from within-individual variation -- comparing the chosen partner to unchosen alternatives in the same choice set -- the model controls for all characteristics of the focal individual that do not vary across alternatives. This makes conditional logit attractive for partner choice research: it can incorporate continuous covariates like residential distance, handle multiple sorting dimensions simultaneously, and yield coefficients that are interpretable as revealed preference parameters conditional on the opportunity structure defined by the choice set.
+In partner choice applications, each individual is modelled as selecting a partner from a constructed choice set drawn from the locally eligible population. The model estimates which characteristics of potential partners and of the dyad (educational similarity, shared ancestry, residential proximity) predict union formation. Identification comes from within-individual variation: comparing the chosen partner to unchosen alternatives in the same choice set. This means the model controls for all characteristics of the focal individual that do not vary across alternatives. Conditional logit can incorporate continuous covariates like residential distance, handle multiple sorting dimensions simultaneously, and yield coefficients interpretable as revealed preference parameters conditional on the opportunity structure defined by the choice set.
 
-These advantages rest on assumptions. The model treats partner choice as one-sided (each person picks independently, with no requirement that the chosen partner reciprocates). It assumes that the choice set accurately represents the relevant partner market. It assumes independence of irrelevant alternatives (IIA). And when used for mediation decomposition -- adding variables sequentially to assess how much of educational homogamy operates through, say, workplace co-membership -- it assumes that the sequential structure is not confounded by unobserved factors. These assumptions are well-known in the discrete choice literature but rarely tested quantitatively in the partner choice context.
+These properties rest on assumptions. The model treats partner choice as one-sided: each person picks independently, with no requirement that the chosen partner reciprocates. It assumes that the choice set accurately represents the relevant partner market. It assumes independence of irrelevant alternatives (IIA). When used for mediation decomposition, adding variables sequentially to assess how much of educational homogamy operates through workplace co-membership, it further assumes that the sequential structure is not confounded by unobserved factors. These assumptions are discussed in the discrete choice literature but rarely tested quantitatively in the partner choice context.
 
-This repository provides that test. We generate synthetic partner markets under known data-generating processes (DGPs), apply conditional logit exactly as in the empirical papers, and check whether the true preference parameters are recovered. Five modules target specific threats to identification:
+This repository tests them. We generate synthetic partner markets under known data-generating processes (DGPs), apply conditional logit as in the empirical papers, and check whether the true preference parameters are recovered. Five modules target specific threats to identification:
 
 1. **Group size bias** (Module 1): Does clogit confound compositional effects with preferences when ancestry groups differ in size?
 2. **Identification** (Module 1b): Can clogit distinguish homophily (preferring similar education) from status maximisation (preferring high education)?
@@ -22,21 +22,21 @@ An experimental sixth module (Module 5) compares clogit to the simulation-based 
 
 ## Key Findings
 
-**Modules 1–3** test specific threats under both oracle (one-sided) and bilateral (two-sided) matching:
+**Modules 1 to 3** test specific threats under both oracle (one-sided) and bilateral (two-sided) matching:
 
-- **Module 1**: clogit handles group imbalance well under oracle (bias < 1%). Bilateral matching adds 33–47% overestimation of the homophily coefficient, roughly constant across group compositions.
+- **Module 1**: clogit handles group imbalance well under oracle (bias < 1%). Bilateral matching adds 33 to 47% overestimation of the homophily coefficient, roughly constant across group compositions.
 - **Module 1b**: Homophily and status maximisation are distinguishable under oracle matching. The absolute value in |edu_diff| breaks collinearity with alt_edu within clogit strata.
-- **Module 2**: Under oracle, spatial confounding is negligible with global choice sets and a distance control (bias < 1.5%). Under bilateral matching, the homophily coefficient is overestimated by ~55%, because bilateral filtering compounds across preference dimensions.
-- **Module 3**: Under oracle, the education preference coefficient is robust to unobserved confounding (bias ~4%); the workplace coefficient absorbs the confounder. Under bilateral matching, education preference bias is ~45%, but this does not interact with confounding. The two biases are approximately additive. Mediation shares should be interpreted as upper bounds.
+- **Module 2**: Under oracle, spatial confounding is negligible with global choice sets and a distance control (bias < 1.5%). Under bilateral matching, the homophily coefficient is overestimated by about 55%, because bilateral filtering compounds across preference dimensions.
+- **Module 3**: Under oracle, the education preference coefficient is robust to unobserved confounding (bias about 4%); the workplace coefficient absorbs the confounder. Under bilateral matching, education preference bias is about 45%, but does not interact with confounding. The two biases are approximately additive. Mediation shares should be interpreted as upper bounds.
 
 **Module 4** provides the systematic bilateral analysis:
 
-- A calibrated threshold sweep compares homophily and status maximisation DGPs at equivalent acceptance rates (10–80%).
+- A calibrated threshold sweep compares homophily and status maximisation DGPs at equivalent acceptance rates (10 to 80%).
 - Homophily overestimation varies from 16% (40% acceptance) to 69% (10% acceptance).
-- Status maximisation is fundamentally unrecoverable under bilateral matching (66–96% attenuation).
-- The bilateral bias converges after ~20 encounter rounds and is stable across group compositions.
+- Status maximisation is unrecoverable under bilateral matching (66 to 96% attenuation).
+- The bilateral bias converges after about 20 encounter rounds and is stable across group compositions.
 
-**Key cross-module finding**: the bilateral bias is approximately additive with other threats. Confounding, spatial structure, and group composition do not strongly interact with the bilateral mechanism. The qualitative conclusions from oracle-based analyses survive; only the quantitative magnitudes need the bilateral correction.
+**Cross-module finding**: the bilateral bias is approximately additive with other threats. Confounding, spatial structure, and group composition do not interact strongly with the bilateral mechanism. The qualitative conclusions from oracle-based analyses survive; only the quantitative magnitudes need the bilateral correction.
 
 ## Simulation Design
 
@@ -66,7 +66,7 @@ Two alternative DGPs appear in Modules 1b and 4:
 
 ### Matching Mechanisms
 
-Modules 1–3 use **oracle matching** (one-sided choice) as the baseline, plus **bilateral matching** (calibrated at 20% one-sided acceptance rate) to test whether each threat interacts with two-sided matching.
+Modules 1 to 3 use **oracle matching** (one-sided choice) as the baseline, plus **bilateral matching** (calibrated at 20% one-sided acceptance rate) to test whether each threat interacts with two-sided matching.
 
 Module 4 compares three mechanisms:
 
@@ -76,22 +76,22 @@ Module 4 compares three mechanisms:
 | Bilateral (random encounters) | Agents meet in random encounter rounds; both must accept (U > threshold). The threshold is calibrated per DGP to achieve a target acceptance rate. |
 | Deferred acceptance | Gale-Shapley algorithm: proposals, tentative acceptance, displacement. Included as a robustness check. |
 
-The calibrated threshold approach is important: raw thresholds are meaningless across DGPs because utility distributions differ. By calibrating thresholds to achieve the same one-sided acceptance rate, market selectivity is equalized for comparison.
+The calibrated threshold approach matters because raw thresholds are meaningless across DGPs: utility distributions differ. Calibrating thresholds to achieve the same one-sided acceptance rate equalizes market selectivity for comparison.
 
 ## File Structure
 
 ```
-├── README.md                     ← This file
-├── utils.R                       ← Shared functions: agent generation, matching
-│                                    mechanisms, choice sets, estimation, diagnostics
-├── module1_group_size.R          ← Module 1: group size (standalone)
-├── module1b_identification.R     ← Module 1b: homophily vs status maximisation
-├── module2_spatial.R             ← Module 2: spatial confounding
-├── module3_mediation.R           ← Module 3: mediation under confounding
-├── run_module4.R                 ← Module 4: matching mechanisms (crash-safe runner)
-├── run_modules1to3.R             ← Modules 1 & 1b: crash-safe runner
-├── results/                      ← Output CSVs and diagnostic plots
-└── module5/                      ← [Experimental] Boundary estimation comparison
+├── README.md
+├── utils.R                       Shared functions: agent generation, matching
+│                                 mechanisms, choice sets, estimation, diagnostics
+├── module1_group_size.R          Module 1: group size (standalone)
+├── module1b_identification.R     Module 1b: homophily vs status maximisation
+├── module2_spatial.R             Module 2: spatial confounding
+├── module3_mediation.R           Module 3: mediation under confounding
+├── run_module4.R                 Module 4: matching mechanisms (crash-safe runner)
+├── run_modules1to3.R             Modules 1 and 1b: crash-safe runner
+├── results/                      Output CSVs and diagnostic plots
+└── module5/                      [Experimental] Boundary estimation comparison
     ├── README.md
     ├── module5_config.R
     ├── module5_dgp.R
@@ -102,20 +102,20 @@ The calibrated threshold approach is important: raw thresholds are meaningless a
     └── results/
 ```
 
-### utils.R -- Shared Infrastructure
+### utils.R: Shared Infrastructure
 
 All shared functions are in `utils.R`, organised in 17 sections:
 
 | Section | Key functions | Purpose |
 |---------|--------------|---------|
 | 1 | `generate_agents()` | Create agent populations with education and group membership |
-| 2–3 | `place_agents_spatially()`, `sort_into_workplaces()` | Spatial placement and workplace assignment |
-| 4–6 | `construct_choice_sets()`, `simulate_choices()` | Choice set construction and partner selection |
-| 7–8 | `estimate_clogit()`, `run_monte_carlo()` | Estimation wrapper and Monte Carlo loop |
-| 9–13 | `assess_recovery()`, plotting, diagnostics | Bias, RMSE, coverage assessment |
+| 2, 3 | `place_agents_spatially()`, `sort_into_workplaces()` | Spatial placement and workplace assignment |
+| 4 to 6 | `construct_choice_sets()`, `simulate_choices()` | Choice set construction and partner selection |
+| 7, 8 | `estimate_clogit()`, `run_monte_carlo()` | Estimation wrapper and Monte Carlo loop |
+| 9 to 13 | `assess_recovery()`, plotting, diagnostics | Bias, RMSE, coverage assessment |
 | 14 | `bilateral_matching()`, `calibrate_threshold()` | Bilateral mechanism and threshold calibration |
 | 15 | Distance-based encounter functions | For Module 2 spatial matching |
-| 16–17 | `sequential_onesided_matching()`, `deferred_acceptance_matching()` | Alternative matching mechanisms |
+| 16, 17 | `sequential_onesided_matching()`, `deferred_acceptance_matching()` | Alternative matching mechanisms |
 
 ## Running the Simulations
 
@@ -140,8 +140,8 @@ Each module is self-contained and sources `utils.R`. Modules are independent and
 Rscript run_modules1to3.R module1     # Module 1 (~30 min)
 Rscript run_modules1to3.R module1b    # Module 1b (~60 min)
 Rscript module2_spatial.R             # Module 2 (~30 min)
-Rscript module3_mediation.R           # Module 3 (~3–4 hours)
-Rscript run_module4.R                 # Module 4 (~2–3 hours)
+Rscript module3_mediation.R           # Module 3 (~3 to 4 hours)
+Rscript run_module4.R                 # Module 4 (~2 to 3 hours)
 ```
 
 For Modules 1 and 1b, the crash-safe runner `run_modules1to3.R` is recommended over the standalone scripts. It uses sequential execution with incremental CSV saves to prevent memory issues (see Technical Notes). Module 4's runner uses the same pattern. Both runners accept a `quick` argument for reduced-scale sanity checks.
@@ -155,7 +155,7 @@ Results are saved to `results/` as CSV files and diagnostic plots:
 | `module1_results.csv` | Module 1: oracle + bilateral, 4 compositions |
 | `module1b_results.csv` | Module 1b: 3 DGPs × 4 specifications |
 | `module2_results.csv` | Module 2: 6 oracle + 3 bilateral conditions |
-| `module3_core_stages.csv` | Module 3 Part I: confounding stages A–D, oracle + bilateral |
+| `module3_core_stages.csv` | Module 3 Part I: confounding stages A to D, oracle + bilateral |
 | `module3_assumption_sweeps.csv` | Module 3 Part II: 8 assumption sweeps (oracle) |
 | `module3_interactions.csv` | Module 3 Part III: interaction tests (oracle) |
 | `module4_results.csv` | Module 4: all parts including calibrated sweep |
@@ -165,18 +165,18 @@ Results are saved to `results/` as CSV files and diagnostic plots:
 
 ### Reading the CSV Results
 
-Each row in a results CSV represents one parameter under one condition, summarised across Monte Carlo repetitions. The key columns are:
+Each row in a results CSV represents one parameter under one condition, summarised across Monte Carlo repetitions. The key columns:
 
 | Column | Definition |
 |--------|------------|
-| `bias` | Mean estimate − true value |
+| `bias` | Mean estimate minus true value |
 | `rel_bias_pct` | 100 × bias / \|true value\| |
 | `rmse` | Root mean squared error |
 | `coverage_95` | Fraction of repetitions where the true value falls in the 95% CI |
 | `sd_est` | Standard deviation of estimates across repetitions |
 | `mean_pair_rate` | Fraction of agents successfully matched (bilateral/DA only) |
 
-**Note on Module 4 CSV**: `module4_results.csv` has variable column counts because Parts 2–4 append extra columns (threshold, acceptance rate, encounter rounds). Read with `fill = TRUE` in R or handle ragged rows in Python.
+**Note on Module 4 CSV**: `module4_results.csv` has variable column counts because Parts 2 to 4 append extra columns (threshold, acceptance rate, encounter rounds). Read with `fill = TRUE` in R or handle ragged rows in Python.
 
 ## Module Details
 
@@ -184,17 +184,17 @@ Each row in a results CSV represents one parameter under one condition, summaris
 
 Tests whether clogit recovers homophily and group-preference parameters when education is unevenly distributed across groups of different sizes.
 
-**Conditions**: Four group compositions -- balanced (33/33/33), moderate (50/30/20), unbalanced (70/20/10), extreme (85/10/5) -- each with group-specific education distributions, tested under oracle and bilateral matching.
+**Conditions**: Four group compositions (balanced 33/33/33, moderate 50/30/20, unbalanced 70/20/10, extreme 85/10/5), each with group-specific education distributions, tested under oracle and bilateral matching.
 
-**Result**: Under oracle, bias is near zero (< 1%) across all conditions. Under bilateral, edu_diff is overestimated by 33–47%, roughly constant across compositions.
+**Result**: Under oracle, bias is near zero (< 1%) across all conditions. Under bilateral, edu_diff is overestimated by 33 to 47%, roughly constant across compositions.
 
-### Module 1b: Identification -- Homophily vs Status Maximisation
+### Module 1b: Identification of Homophily vs Status Maximisation
 
-Tests whether clogit can distinguish between two preference structures that produce superficially similar matching patterns.
+Tests whether clogit can distinguish between two preference structures that produce similar matching patterns.
 
-**Design**: Three DGPs (homophily, status_max, mixed) × four clogit specifications. The key insight is that ego characteristics are conditioned out by clogit strata, so alt_edu and |edu_diff| are not collinear -- the absolute value introduces a nonlinearity that permits identification.
+**Design**: Three DGPs (homophily, status_max, mixed) × four clogit specifications. Ego characteristics are conditioned out by clogit strata, so alt_edu and |edu_diff| are not collinear: the absolute value introduces a nonlinearity that permits identification.
 
-**Result**: The correct specification recovers all parameters with < 1.5% bias. Misspecification produces detectable, directional bias: fitting a homophily model to status_max data yields a small spurious homophily coefficient (+0.127), while fitting a status model to homophily data correctly returns near-zero on alt_edu.
+**Result**: The correct specification recovers all parameters with < 1.5% bias. Misspecification produces detectable, directional bias. Fitting a homophily model to status_max data yields a small spurious homophily coefficient (+0.127); fitting a status model to homophily data correctly returns near-zero on alt_edu.
 
 ### Module 2: Spatial Opportunity vs Homophily
 
@@ -202,31 +202,31 @@ Tests whether residential segregation by education creates spurious homophily es
 
 **Design**: Agents on a 100×100 spatial grid with tunable education-based segregation. Six oracle experiments vary segregation strength, local market structure, and distance measurement resolution. Three bilateral experiments test whether spatial confounding interacts with two-sided matching.
 
-**Result**: Under oracle, the full model (edu_diff + log_distance) recovers both parameters with < 1.5% bias at all segregation levels. Under bilateral, edu_diff is overestimated by ~55% even with distance controlled.
+**Result**: Under oracle, the full model (edu_diff + log_distance) recovers both parameters with < 1.5% bias at all segregation levels. Under bilateral, edu_diff is overestimated by about 55% even with distance controlled.
 
 ### Module 3: Mediation via Sequential Opportunity Variables
 
-Tests the sequential mediation decomposition used in the dissertation (M0: education only → M1: + workplace) under unobserved confounding.
+Tests the sequential mediation decomposition used in the dissertation (M0: education only, then M1: + workplace) under unobserved confounding.
 
-**Part I**: Four stages of increasing confounding (no confounder → independent → correlated with education → affects choice sets), tested under oracle and bilateral matching.
+**Part I**: Four stages of increasing confounding (no confounder, independent confounder, confounder correlated with education, confounder affecting choice sets), tested under oracle and bilateral matching.
 
 **Part II**: Eight assumption sweeps, varying one structural parameter at a time: pathway strength, choice set size, confounder type, group structure, multiple mediators, workplace concentration, direct effect magnitude, and confounding strength.
 
 **Part III**: Interaction tests (confounding × choice set size, confounding × group structure).
 
-**Core finding**: Under oracle, the education coefficient is robust across all conditions (bias < 5.4%); the workplace coefficient absorbs the confounding; mediation shares are stable but upward-biased. Under bilateral matching, education coefficient bias is ~45% but does not interact with confounding -- the biases are additive.
+**Core finding**: Under oracle, the education coefficient is robust across all conditions (bias < 5.4%); the workplace coefficient absorbs the confounding; mediation shares are stable but upward-biased. Under bilateral matching, education coefficient bias is about 45% but does not interact with confounding: the biases are additive.
 
 ### Module 4: Matching Mechanisms
 
-The central methodological contribution. Systematically tests how the matching mechanism affects clogit parameter recovery.
+The central methodological contribution. Tests how the matching mechanism affects clogit parameter recovery.
 
 **Part 1** (Core): Oracle × bilateral × deferred acceptance, under three DGPs.
 
-**Part 2** (Calibrated threshold sweep): Bilateral matching at 5 acceptance rates (10–80%) × 2 DGPs. This produces the key result: at equivalent market selectivity, homophily is overestimated in selective markets and attenuated in permissive ones, while status maximisation is attenuated at all selectivity levels.
+**Part 2** (Calibrated threshold sweep): Bilateral matching at 5 acceptance rates (10 to 80%) × 2 DGPs. At equivalent market selectivity, homophily is overestimated in selective markets and attenuated in permissive ones, while status maximisation is attenuated at all selectivity levels.
 
 **Part 3** (Group interaction): Bilateral bias across balanced, moderate, and extreme group compositions.
 
-**Part 4** (Rounds sweep): Encounter rounds from 5 to 200, separating encounter limitation from fundamental bilateral bias.
+**Part 4** (Rounds sweep): Encounter rounds from 5 to 200, separating encounter limitation from the bilateral bias itself.
 
 **Part 5** (Pair diagnostics): Utility distributions for matched pairs showing the mutual acceptance truncation that drives the bias.
 
@@ -236,11 +236,11 @@ The central methodological contribution. Systematically tests how the matching m
 
 ### macOS Memory and Parallelism
 
-`mclapply` (fork-based parallelism) corrupts R's internal memory state on macOS when used with compiled C code from `survival::clogit`. All production runners use sequential execution (`N_CORES = 1`) with incremental CSV saves after each condition. If running on Linux, parallelism may work but has not been tested at scale.
+`mclapply` (fork-based parallelism) corrupts R's internal memory state on macOS when used with compiled C code from `survival::clogit`. All production runners use sequential execution (`N_CORES = 1`) with incremental CSV saves after each condition. On Linux, parallelism may work but has not been tested at scale.
 
 ### Choice Set Construction
 
-For one-sided matching, each agent's choice set contains J random alternatives from the population. For bilateral matching, after pairs form, each matched agent's choice set contains their actual partner (chosen = 1) plus J − 1 random alternatives from the full population (chosen = 0). This mirrors the empirical approach where choice sets are sampled from the population regardless of who actually matched.
+For one-sided matching, each agent's choice set contains J random alternatives from the population. For bilateral matching, after pairs form, each matched agent's choice set contains their actual partner (chosen = 1) plus J minus 1 random alternatives from the full population (chosen = 0). This mirrors the empirical approach where choice sets are sampled from the population regardless of who actually matched.
 
 ### Reproducibility
 
