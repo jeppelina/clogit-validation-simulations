@@ -13,14 +13,16 @@
 GROUP_CENTRES <- rbind(c(0.25, 0.25), c(0.75, 0.25), c(0.5, 0.75),
                        c(0.25, 0.75), c(0.75, 0.75))
 
+# shares_w / edu_shift_w let the women's side differ from the men's (Module
+# B). By default both sexes are drawn the same way.
 make_population <- function(N, shares = c(0.7, 0.2, 0.1), edu_sd = 1,
-                            seg = NULL) {
-  draw_side <- function() {
-    sizes <- round(N * shares)
+                            seg = NULL, shares_w = shares, edu_shift_w = 0) {
+  draw_side <- function(sh, shift = 0) {
+    sizes <- round(N * sh)
     sizes[1] <- N - sum(sizes[-1])
     d <- data.frame(id = seq_len(N),
-                    group = rep(seq_along(shares), times = sizes),
-                    edu = rnorm(N, 0, edu_sd))
+                    group = rep(seq_along(sh), times = sizes),
+                    edu = rnorm(N, shift, edu_sd))
     if (!is.null(seg)) {
       near <- runif(N) < seg
       cx <- GROUP_CENTRES[d$group, 1]; cy <- GROUP_CENTRES[d$group, 2]
@@ -29,14 +31,16 @@ make_population <- function(N, shares = c(0.7, 0.2, 0.1), edu_sd = 1,
     }
     d
   }
-  list(men = draw_side(), women = draw_side())
+  list(men = draw_side(shares), women = draw_side(shares_w, edu_shift_w))
 }
 
 ln_dist <- function(x1, y1, x2, y2) log(sqrt((x1 - x2)^2 + (y1 - y2)^2) + 0.01)
 
 # Systematic utility for every man-woman pair, from one side's coefficients.
-# beta: named vector with any of same_group, edu_diff, ln_dist.
-pair_V <- function(pop, beta) {
+# beta: named vector with any of same_group, edu_diff, ln_dist, alt_edu.
+# alt_edu is the partner's own education (status), so it depends on whose
+# utility this is: side = "men" (man values the woman) or "women".
+pair_V <- function(pop, beta, side = "men") {
   V <- matrix(0, nrow(pop$men), nrow(pop$women))
   if ("same_group" %in% names(beta))
     V <- V + beta[["same_group"]] * outer(pop$men$group, pop$women$group, "==")
@@ -45,6 +49,10 @@ pair_V <- function(pop, beta) {
   if ("ln_dist" %in% names(beta))
     V <- V + beta[["ln_dist"]] * log(sqrt(outer(pop$men$x, pop$women$x, "-")^2 +
                                           outer(pop$men$y, pop$women$y, "-")^2) + 0.01)
+  if ("alt_edu" %in% names(beta))
+    V <- V + beta[["alt_edu"]] * (if (side == "men")
+      matrix(pop$women$edu, nrow(pop$men), nrow(pop$women), byrow = TRUE) else
+      matrix(pop$men$edu, nrow(pop$men), nrow(pop$women)))
   V
 }
 
@@ -58,8 +66,8 @@ rgumbel_matrix <- function(n, m) matrix(-log(-log(runif(n * m))), n, m)
 make_utilities <- function(pop, beta_m, beta_w, u0 = -Inf) {
   N_m <- nrow(pop$men); N_w <- nrow(pop$women)
   list(
-    U_m = pair_V(pop, beta_m) + rgumbel_matrix(N_m, N_w),
-    U_w = pair_V(pop, beta_w) + rgumbel_matrix(N_m, N_w),
+    U_m = pair_V(pop, beta_m, "men") + rgumbel_matrix(N_m, N_w),
+    U_w = pair_V(pop, beta_w, "women") + rgumbel_matrix(N_m, N_w),
     out_m = u0 + -log(-log(runif(N_m))),
     out_w = u0 + -log(-log(runif(N_w)))
   )

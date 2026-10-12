@@ -15,7 +15,8 @@ library(survival)
 pair_vars <- function(ego, alt, ego_df, alt_df) {
   d <- data.frame(
     same_group = as.integer(ego_df$group[ego] == alt_df$group[alt]),
-    edu_diff = abs(ego_df$edu[ego] - alt_df$edu[alt]))
+    edu_diff = abs(ego_df$edu[ego] - alt_df$edu[alt]),
+    alt_edu = alt_df$edu[alt])
   if (!is.null(ego_df$x))
     d$ln_dist <- ln_dist(ego_df$x[ego], ego_df$y[ego], alt_df$x[alt], alt_df$y[alt])
   d
