@@ -5,8 +5,12 @@
 # QUESTION: How does the mismatch between two-sided matching (reality) and
 # one-sided choice models (clogit) affect parameter recovery?
 #
-# HEADLINE FINDING: Bilateral matching overestimates educational homophily
-# by ~23% (relative bias on edu_diff, threshold = -0.5).
+# HEADLINE FINDING: Bilateral matching overestimates educational homophily.
+# The magnitude depends on market selectivity (calibrated acceptance rate).
+# Part 1 (fixed threshold = -0.5) shows ~23%; the headline appendix figure
+# uses the Part 2 calibrated sweep, where bias spans roughly -69% to +76%
+# across the 10%-80% acceptance band and across DGPs (homophily, status_max).
+# The Part 2 calibrated result is what the kappa appendix cites.
 #
 # STRUCTURE:
 #   Part 1 — Core comparison: 3 mechanisms × 3 DGPs (9 conditions + misspec)
@@ -286,8 +290,12 @@ run_mechanism_sim <- function(
 # MAIN EXECUTION
 # =============================================================================
 
-# Delete old results file so we start fresh
-if (file.exists(RESULTS_FILE)) file.remove(RESULTS_FILE)
+# Back up old results file so we start fresh (preserves prior production runs)
+if (file.exists(RESULTS_FILE)) {
+  backup <- sub("\\.csv$", paste0("_backup_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".csv"), RESULTS_FILE)
+  file.rename(RESULTS_FILE, backup)
+  cat(sprintf("Backed up existing CSV to %s\n", backup))
+}
 
 total_t0 <- proc.time()["elapsed"]
 cat(sprintf("Started: %s\n", Sys.time()))

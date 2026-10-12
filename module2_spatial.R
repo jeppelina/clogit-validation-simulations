@@ -17,7 +17,9 @@
 #       U(i,j) = beta_homophily × |edu_i - edu_j|
 #              + beta_propinquity × log(distance_ij + 1)
 #              + epsilon_ij (Gumbel)
-#   - Matching: oracle (one-sided)
+#   - Matching: oracle (one-sided) AND bilateral (calibrated 20% acceptance,
+#     random encounters; spatially structured encounters are a future
+#     extension — see compute_pair_utility / bilateral block below).
 #
 # EXPERIMENTS:
 #   2.1-2.3: Pure propinquity (no homophily), varying segregation

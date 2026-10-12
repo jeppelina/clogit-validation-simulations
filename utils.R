@@ -100,8 +100,12 @@ place_agents_on_grid <- function(agents, grid_size = 100,
 
   n_groups <- length(unique(agents$group))
 
-  # Assign group centers spread across the grid
-  set.seed(NULL)  # ensure different centers each call if outer seed changes
+  # Assign group centers spread across the grid.
+  # NOTE (W2-FIX-MODULE1, 2026-05-08): a previous version called
+  #   set.seed(NULL)
+  # here, which silently overrode the outer reproducibility seed and made
+  # any caller of place_agents_on_grid non-reproducible. The seed reset has
+  # been removed; group centres are deterministic given the outer seed.
   group_centers <- data.frame(
     group = 1:n_groups,
     cx = seq(grid_size * 0.2, grid_size * 0.8, length.out = n_groups),

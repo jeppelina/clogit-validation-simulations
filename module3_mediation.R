@@ -329,12 +329,29 @@ run_module3_sim <- function(
       if (confounder_type == "homophily") {
         bilateral_gen_beta <- c(bilateral_gen_beta, open_beta)
         bilateral_gen_vars <- c(bilateral_gen_vars, "openness_diff")
+      } else if (confounder_type %in% c("level", "interaction")) {
+        # The bilateral utility helper (compute_pair_utility in utils.R)
+        # only knows the homophily-type "openness_diff" variable. Level
+        # ("alt_openness") and interaction ("ego_x_alt_openness") confounder
+        # structures are silently dropped from bilateral matching utility.
+        # This means bilateral results for these confounder types reflect
+        # ONLY the primary preferences (edu_diff, same_wp, same_nbhd) plus
+        # the choice-set-based confounder, NOT a confounder-driven matching
+        # process. Warn the user so this is not silently mis-interpreted.
+        warning(sprintf(
+          paste0("module3_mediation: bilateral matching is requested with ",
+                 "confounder_type='%s', but compute_pair_utility() only ",
+                 "supports the 'homophily' confounder structure for ",
+                 "bilateral DGPs. The %s confounder will NOT enter the ",
+                 "bilateral matching utility. Bilateral estimates here ",
+                 "test bilateral bias under the primary preference DGP, ",
+                 "not under a %s-type unobserved confounder. See utils.R ",
+                 "lines ~875-911 (compute_pair_utility)."),
+          confounder_type, confounder_type, confounder_type
+        ), call. = FALSE)
       }
-      # For "level" and "interaction" types, we skip them in bilateral matching
-      # utility (they operate differently and are handled post-matching).
-      # This is a simplification — the bilateral matching uses the primary
-      # preference variables (edu_diff, same_wp, same_nbhd) + openness homophily
-      # only. The choice-set-based estimation still tests all confounder types.
+      # The choice-set-based estimation still tests all confounder types
+      # (level/interaction enter via the constructed choice sets).
     }
 
     bm <- bilateral_matching(agents, bilateral_gen_beta, bilateral_gen_vars,

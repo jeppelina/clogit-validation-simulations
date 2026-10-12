@@ -165,7 +165,11 @@ run_module1_production <- function() {
   cat("=", rep("=", 70), "\n", sep = "")
 
   RESULTS_FILE <- "results/module1_results.csv"
-  if (file.exists(RESULTS_FILE)) file.remove(RESULTS_FILE)
+  if (file.exists(RESULTS_FILE)) {
+    backup <- sub("\\.csv$", paste0("_backup_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".csv"), RESULTS_FILE)
+    file.rename(RESULTS_FILE, backup)
+    cat(sprintf("  Backed up existing CSV to %s\n", backup))
+  }
 
   experiments <- list(
     balanced = list(
@@ -315,7 +319,11 @@ run_module1b_production <- function() {
   cat("=", rep("=", 70), "\n", sep = "")
 
   RESULTS_FILE <- "results/module1b_results.csv"
-  if (file.exists(RESULTS_FILE)) file.remove(RESULTS_FILE)
+  if (file.exists(RESULTS_FILE)) {
+    backup <- sub("\\.csv$", paste0("_backup_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".csv"), RESULTS_FILE)
+    file.rename(RESULTS_FILE, backup)
+    cat(sprintf("  Backed up existing CSV to %s\n", backup))
+  }
 
   GROUP_PROPS <- c(0.70, 0.20, 0.10)
   EDU_MEANS   <- c(12, 10, 14)
@@ -410,7 +418,11 @@ run_module2_production <- function() {
   cat("=", rep("=", 70), "\n", sep = "")
 
   RESULTS_FILE <- "results/module2_results.csv"
-  if (file.exists(RESULTS_FILE)) file.remove(RESULTS_FILE)
+  if (file.exists(RESULTS_FILE)) {
+    backup <- sub("\\.csv$", paste0("_backup_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".csv"), RESULTS_FILE)
+    file.rename(RESULTS_FILE, backup)
+    cat(sprintf("  Backed up existing CSV to %s\n", backup))
+  }
 
   # We run Module 2 by sourcing its sim function.
   # But to keep it crash-safe, we inline a simplified version here.
@@ -442,7 +454,11 @@ run_module3_production <- function() {
   cat("=", rep("=", 70), "\n", sep = "")
 
   RESULTS_FILE <- "results/module3_results.csv"
-  if (file.exists(RESULTS_FILE)) file.remove(RESULTS_FILE)
+  if (file.exists(RESULTS_FILE)) {
+    backup <- sub("\\.csv$", paste0("_backup_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".csv"), RESULTS_FILE)
+    file.rename(RESULTS_FILE, backup)
+    cat(sprintf("  Backed up existing CSV to %s\n", backup))
+  }
 
   # Module 3 parameters
   BETA_EDU_M3   <- -1.0
