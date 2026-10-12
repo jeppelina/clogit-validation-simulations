@@ -56,6 +56,12 @@ pop <- make_population(400); ut <- make_utilities(pop, beta, beta, 100)  # nobod
 sm <- search_market(ut, 40, 10)
 check(abs(mean(rowSums(sm$met)) - 40) < 2, sprintf("mean meetings when all single = %.1f (target 40)", mean(rowSums(sm$met))))
 
+# Small per-round budgets (fractional draws) still produce couples.
+pop <- make_population(400); ut <- make_utilities(pop, beta, beta, -Inf)
+sm <- search_market(ut, 10, 10)
+check(nrow(sm$couples) > 100 && sm$rounds_used == 10,
+      sprintf("budget 10 over 10 rounds: %d couples, %d rounds", nrow(sm$couples), sm$rounds_used))
+
 # Calibration hits its target pairing rate.
 pop <- make_population(300)
 mk <- function(u0) make_utilities(pop, beta, beta, u0)

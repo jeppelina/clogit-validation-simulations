@@ -97,7 +97,7 @@ set.seed(SEED)
 t0 <- Sys.time(); all <- list()
 for (i in seq_len(nrow(cells))) {
   all[[i]] <- run_cell(cells[i, ])
-  cat(sprintf("[%5.1f min] cell %2d/%d  %s %s N=%d budget=%s rounds=%s outside=%s\n",
+  cat(sprintf("[%5.1f min] done cell %2d/%d  %s %s N=%d budget=%s rounds=%s outside=%s\n",
               as.numeric(difftime(Sys.time(), t0, units = "mins")), i, nrow(cells),
               cells$block[i], cells$mech[i], cells$N[i], cells$budget[i],
               cells$rounds[i], cells$outside[i]))

@@ -13,8 +13,7 @@
 #   - After each round the market clears by deferred acceptance among
 #     everyone who has met so far. Couples are provisional until the last
 #     round, so a later round can break them up.
-#   - Rounds stop when everyone is matched, the budget is used up, or no
-#     single person has anyone left to meet.
+#   - Rounds stop when everyone is matched or the rounds are used up.
 #   - The final matching is stable with respect to the final meeting network:
 #     no two people who met would both rather be with each other.
 #   The search budget is the expected number of people a person meets if
@@ -79,18 +78,21 @@ clear_market <- function(ut, met, proposer = "men") {
   }
 }
 
-# Each person in `who` meets up to n_new people they have not met, drawn at
-# random from the other side. side = "men" draws women for men; "women" the
-# reverse. Returns the updated network.
+# Each person in `who` meets new people they have not met, drawn at random
+# from the other side. n_new is a per-person count: either one number or one
+# per person in `who`. side = "men" draws women for men; "women" the reverse.
 add_meetings <- function(met, who, n_new, side) {
-  if (n_new <= 0 || length(who) == 0) return(met)
-  for (i in who) {
+  if (length(who) == 0) return(met)
+  n_new <- rep_len(n_new, length(who))
+  for (j in seq_along(who)) {
+    i <- who[j]; k <- n_new[j]
+    if (k <= 0) next
     if (side == "men") {
       cand <- which(!met[i, ])
-      if (length(cand)) met[i, cand[sample.int(length(cand), min(n_new, length(cand)))]] <- TRUE
+      if (length(cand)) met[i, cand[sample.int(length(cand), min(k, length(cand)))]] <- TRUE
     } else {
       cand <- which(!met[, i])
-      if (length(cand)) met[cand[sample.int(length(cand), min(n_new, length(cand)))], i] <- TRUE
+      if (length(cand)) met[cand[sample.int(length(cand), min(k, length(cand)))], i] <- TRUE
     }
   }
   met
@@ -116,12 +118,11 @@ search_market <- function(ut, budget, rounds = 10, proposer = "men") {
     single_m <- setdiff(seq_len(N_m), couples$man)
     single_w <- setdiff(seq_len(N_w), couples$woman)
     if (length(single_m) == 0 && length(single_w) == 0) break
-    # Fractional draws are resolved at random so the expected count is exact.
-    n_draw <- floor(per_draw) + (runif(1) < per_draw - floor(per_draw))
-    before <- sum(met)
-    met <- add_meetings(met, single_m, n_draw, "men")
-    met <- add_meetings(met, single_w, n_draw, "women")
-    if (sum(met) == before && r > 1) break          # nobody left to meet
+    # Fractional draws are resolved per person, so the expected count is
+    # exact and no round is empty for everyone at once.
+    draws <- function(n) floor(per_draw) + (runif(n) < per_draw - floor(per_draw))
+    met <- add_meetings(met, single_m, draws(length(single_m)), "men")
+    met <- add_meetings(met, single_w, draws(length(single_w)), "women")
     couples <- clear_market(ut, met, proposer)
     rounds_used <- r
   }
