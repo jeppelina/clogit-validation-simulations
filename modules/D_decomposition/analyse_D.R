@@ -31,7 +31,7 @@ long <- rbind(data.frame(s[, c("scenario", "setting")], what = "true (counterfac
 long$setting <- factor(long$setting, c("oracle", "gs", "seq"),
                        c("One-sided (oracle)", "Gale-Shapley", "Sequential search"))
 long$scenario <- factor(long$scenario, c("null", "harden", "soften", "frictions"),
-                        c("No change in tastes", "Tastes harden", "Tastes soften", "Frictions fall,\ntastes constant"))
+                        c("No change\nin tastes", "Tastes\nharden", "Tastes\nsoften", "Frictions fall,\ntastes constant"))
 p <- ggplot(long, aes(scenario, 100 * v, fill = what)) +
   geom_hline(yintercept = 0, colour = "grey50") +
   geom_col(position = position_dodge(0.75), width = 0.7) +
