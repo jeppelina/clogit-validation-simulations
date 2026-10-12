@@ -1,0 +1,23 @@
+[  0.5 min] done cell  1/22  V1_null oracle N=1000 budget=NA rounds=NA outside=off
+[  1.0 min] done cell  2/22  V1_null da N=1000 budget=1000 rounds=1 outside=off
+[  2.0 min] done cell  3/22  V1_null da N=1000 budget=50 rounds=10 outside=cal85
+[  2.1 min] done cell  4/22  V2_grid oracle N=1000 budget=NA rounds=NA outside=off
+[  2.3 min] done cell  5/22  V2_grid da N=1000 budget=10 rounds=1 outside=off
+[  2.6 min] done cell  6/22  V2_grid da N=1000 budget=10 rounds=1 outside=cal85
+[  2.8 min] done cell  7/22  V2_grid da N=1000 budget=10 rounds=10 outside=off
+[  3.3 min] done cell  8/22  V2_grid da N=1000 budget=10 rounds=10 outside=cal85
+[  3.5 min] done cell  9/22  V2_grid da N=1000 budget=50 rounds=1 outside=off
+[  3.8 min] done cell 10/22  V2_grid da N=1000 budget=50 rounds=1 outside=cal85
+[  4.1 min] done cell 11/22  V2_grid da N=1000 budget=50 rounds=10 outside=off
+[  4.6 min] done cell 12/22  V2_grid da N=1000 budget=50 rounds=10 outside=cal85
+[  4.8 min] done cell 13/22  V2_grid da N=1000 budget=200 rounds=1 outside=off
+[  5.1 min] done cell 14/22  V2_grid da N=1000 budget=200 rounds=1 outside=cal85
+[  5.4 min] done cell 15/22  V2_grid da N=1000 budget=200 rounds=10 outside=off
+[  6.0 min] done cell 16/22  V2_grid da N=1000 budget=200 rounds=10 outside=cal85
+[  6.2 min] done cell 17/22  V2_grid da N=1000 budget=1000 rounds=1 outside=off
+[  6.4 min] done cell 18/22  V2_grid da N=1000 budget=1000 rounds=1 outside=cal85
+[  6.6 min] done cell 19/22  V3_scale da N=500 budget=25 rounds=10 outside=cal85
+[  6.8 min] done cell 20/22  V3_scale da N=500 budget=50 rounds=10 outside=cal85
+[  8.5 min] done cell 21/22  V3_scale da N=2000 budget=100 rounds=10 outside=cal85
+[ 10.0 min] done cell 22/22  V3_scale da N=2000 budget=50 rounds=10 outside=cal85
+Done.
