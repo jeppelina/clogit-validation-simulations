@@ -1,18 +1,25 @@
 # =============================================================================
 # matching.R -- how partners are formed
 # =============================================================================
-# Two mechanisms.
-#
 # oracle_choice(): each ego picks the best option in the whole opposite-sex
 #   pool, or stays single. No capacity limits, the other side has no say.
 #   This is exactly the process conditional logit assumes. Run per sex.
 #
-# deferred_acceptance(): people meet k random others (a fixed meeting
-#   network), have fixed tastes, can stay single, and among those who met,
-#   proposers and receivers compete until no proposer has anyone left to try.
-#   k = everyone gives textbook Gale-Shapley. The result is stable with
-#   respect to the meeting network: no two people who MET would both rather
-#   be with each other than with their outcome.
+# search_market(): sequential search with deferred acceptance (the default
+#   two-sided mechanism).
+#   - Tastes are fixed: utilities and outside options are drawn once.
+#   - Each round, every person who is currently single meets new people of
+#     the other sex at random. Meetings are mutual and accumulate.
+#   - After each round the market clears by deferred acceptance among
+#     everyone who has met so far. Couples are provisional until the last
+#     round, so a later round can break them up.
+#   - Rounds stop when everyone is matched, the budget is used up, or no
+#     single person has anyone left to meet.
+#   - The final matching is stable with respect to the final meeting network:
+#     no two people who met would both rather be with each other.
+#   The search budget is the expected number of people a person meets if
+#   single throughout. With one round this is a one-shot meeting network.
+#   With budget >= N everyone meets everyone, which is textbook Gale-Shapley.
 # =============================================================================
 
 oracle_choice <- function(U_ego, out_ego) {
@@ -22,22 +29,14 @@ oracle_choice <- function(U_ego, out_ego) {
   ifelse(best_u > out_ego, best, NA_integer_)
 }
 
-# Random bipartite meeting network: each man meets k women (women's number
-# of meetings then varies around k). Meetings are mutual. k >= N: everyone.
-meeting_network <- function(N_m, N_w, k) {
-  if (k >= N_w) return(matrix(TRUE, N_m, N_w))
-  M <- matrix(FALSE, N_m, N_w)
-  for (m in seq_len(N_m)) M[m, sample.int(N_w, k)] <- TRUE
-  M
-}
-
-# Deferred acceptance on a meeting network.
+# Deferred acceptance on a fixed meeting network.
 #   U_prop[p, r]: proposer p's utility of receiver r
 #   U_recv[p, r]: receiver r's utility of proposer p
-# Returns partner_of_proposer (receiver index or NA).
+#   met[p, r]:    TRUE if p and r have met
+# Returns the receiver each proposer ends up with (NA = single).
 deferred_acceptance <- function(U_prop, U_recv, out_prop, out_recv, met) {
   n_p <- nrow(U_prop); n_r <- ncol(U_prop)
-  # Each proposer's list: met receivers they prefer to staying single, best first.
+  # Each proposer's list: met receivers preferred to staying single, best first.
   lists <- lapply(seq_len(n_p), function(p) {
     cand <- which(met[p, ] & U_prop[p, ] > out_prop[p])
     cand[order(U_prop[p, cand], decreasing = TRUE)]
@@ -66,12 +65,9 @@ deferred_acceptance <- function(U_prop, U_recv, out_prop, out_recv, met) {
   partner
 }
 
-# Wrapper: returns a data.frame of couples (man, woman) under either side
-# proposing.
-match_market <- function(ut, k, proposer = c("men", "women")) {
-  proposer <- match.arg(proposer)
-  N_m <- nrow(ut$U_m); N_w <- ncol(ut$U_m)
-  met <- meeting_network(N_m, N_w, k)
+# Clear the market on a meeting network, either side proposing.
+# Returns a data.frame of couples (man, woman).
+clear_market <- function(ut, met, proposer = "men") {
   if (proposer == "men") {
     pm <- deferred_acceptance(ut$U_m, ut$U_w, ut$out_m, ut$out_w, met)
     keep <- !is.na(pm)
@@ -83,14 +79,95 @@ match_market <- function(ut, k, proposer = c("men", "women")) {
   }
 }
 
-# Stability check against the meeting network: returns the number of
-# blocking pairs (met, both strictly prefer each other to their outcome).
-count_blocking_pairs <- function(ut, couples, met) {
+# Each person in `who` meets up to n_new people they have not met, drawn at
+# random from the other side. side = "men" draws women for men; "women" the
+# reverse. Returns the updated network.
+add_meetings <- function(met, who, n_new, side) {
+  if (n_new <= 0 || length(who) == 0) return(met)
+  for (i in who) {
+    if (side == "men") {
+      cand <- which(!met[i, ])
+      if (length(cand)) met[i, cand[sample.int(length(cand), min(n_new, length(cand)))]] <- TRUE
+    } else {
+      cand <- which(!met[, i])
+      if (length(cand)) met[cand[sample.int(length(cand), min(n_new, length(cand)))], i] <- TRUE
+    }
+  }
+  met
+}
+
+# Sequential search. budget: expected meetings per person if single
+# throughout. rounds: number of search rounds (1 = one-shot). Each round,
+# each single man and each single woman draws budget / (2 * rounds) new
+# contacts, so a person single throughout meets about `budget` people in all
+# (their own draws plus draws that land on them).
+search_market <- function(ut, budget, rounds = 10, proposer = "men") {
   N_m <- nrow(ut$U_m); N_w <- ncol(ut$U_m)
+  if (budget >= min(N_m, N_w)) {
+    met <- matrix(TRUE, N_m, N_w)
+    return(list(couples = clear_market(ut, met, proposer), met = met,
+                 rounds_used = 1L))
+  }
+  per_draw <- budget / (2 * rounds)
+  met <- matrix(FALSE, N_m, N_w)
+  couples <- data.frame(man = integer(0), woman = integer(0))
+  rounds_used <- 0L
+  for (r in seq_len(rounds)) {
+    single_m <- setdiff(seq_len(N_m), couples$man)
+    single_w <- setdiff(seq_len(N_w), couples$woman)
+    if (length(single_m) == 0 && length(single_w) == 0) break
+    # Fractional draws are resolved at random so the expected count is exact.
+    n_draw <- floor(per_draw) + (runif(1) < per_draw - floor(per_draw))
+    before <- sum(met)
+    met <- add_meetings(met, single_m, n_draw, "men")
+    met <- add_meetings(met, single_w, n_draw, "women")
+    if (sum(met) == before && r > 1) break          # nobody left to meet
+    couples <- clear_market(ut, met, proposer)
+    rounds_used <- r
+  }
+  list(couples = couples, met = met, rounds_used = rounds_used)
+}
+
+# Find the outside-option level u0 that gives a target pairing rate.
+# make_ut(u0) must return a utilities object built with that u0 and FIXED
+# random numbers (same seed each call), so the rate is monotone in u0.
+calibrate_u0 <- function(make_ut, budget, rounds, target = 0.85,
+                         lower = -5, upper = 15, iters = 14, n_markets = 2) {
+  rate_at <- function(u0) {
+    mean(vapply(seq_len(n_markets), function(s) {
+      set.seed(9000 + s)
+      ut <- make_ut(u0)
+      sm <- search_market(ut, budget, rounds)
+      nrow(sm$couples) / nrow(ut$U_m)
+    }, numeric(1)))
+  }
+  for (i in seq_len(iters)) {
+    mid <- (lower + upper) / 2
+    if (rate_at(mid) > target) lower <- mid else upper <- mid
+  }
+  (lower + upper) / 2
+}
+
+# Stability check: number of blocking pairs among people who met
+# (both strictly prefer each other to their current outcome).
+count_blocking_pairs <- function(ut, couples, met) {
   cur_m <- ut$out_m; cur_w <- ut$out_w
   cur_m[couples$man] <- ut$U_m[cbind(couples$man, couples$woman)]
   cur_w[couples$woman] <- ut$U_w[cbind(couples$man, couples$woman)]
   block <- met & (ut$U_m > cur_m) & (sweep(ut$U_w, 2, cur_w, ">"))
   block[cbind(couples$man, couples$woman)] <- FALSE
   sum(block)
+}
+
+# --- Legacy: one-shot network where only men draw k women. Used by the
+# --- 2026-10-12 A0 pilot (pilot_A0.R); kept so that pilot reproduces.
+meeting_network <- function(N_m, N_w, k) {
+  if (k >= N_w) return(matrix(TRUE, N_m, N_w))
+  M <- matrix(FALSE, N_m, N_w)
+  for (m in seq_len(N_m)) M[m, sample.int(N_w, k)] <- TRUE
+  M
+}
+match_market <- function(ut, k, proposer = c("men", "women")) {
+  proposer <- match.arg(proposer)
+  clear_market(ut, meeting_network(nrow(ut$U_m), ncol(ut$U_m), k), proposer)
 }
