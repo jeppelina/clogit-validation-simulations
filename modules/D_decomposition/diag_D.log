@@ -1,0 +1,56 @@
+done oracle: coefficient component (men, same_group) +0.0020
+done gs: coefficient component (men, same_group) +0.0431
+done gs_w: coefficient component (men, same_group) +0.0411
+done gs_nooutside: coefficient component (men, same_group) +0.0562
+done gs_N2000: coefficient component (men, same_group) +0.0371
+done seq: coefficient component (men, same_group) +0.0327
+      variant ego_sex         spec est_coefficient est_composition
+           gs     men alter_groups         0.04370         -0.0992
+     gs_N2000     men alter_groups         0.03792         -0.0956
+ gs_nooutside     men alter_groups         0.05752         -0.1177
+         gs_w     men alter_groups         0.04192         -0.0977
+       oracle     men alter_groups         0.00183         -0.0978
+          seq     men alter_groups         0.03324         -0.1276
+           gs   women alter_groups         0.04322         -0.0981
+     gs_N2000   women alter_groups         0.03840         -0.0952
+ gs_nooutside   women alter_groups         0.05778         -0.1179
+         gs_w   women alter_groups         0.03862         -0.0968
+       oracle   women alter_groups         0.00468         -0.0990
+          seq   women alter_groups         0.03716         -0.1303
+           gs     men   same_group         0.04314         -0.0986
+     gs_N2000     men   same_group         0.03708         -0.0947
+ gs_nooutside     men   same_group         0.05623         -0.1164
+         gs_w     men   same_group         0.04112         -0.0969
+       oracle     men   same_group         0.00201         -0.0980
+          seq     men   same_group         0.03273         -0.1270
+           gs   women   same_group         0.04254         -0.0974
+     gs_N2000   women   same_group         0.03769         -0.0945
+ gs_nooutside   women   same_group         0.05682         -0.1170
+         gs_w   women   same_group         0.03782         -0.0960
+       oracle   women   same_group         0.00457         -0.0989
+          seq   women   same_group         0.03663         -0.1297
+ observed_change coef_mcse
+         -0.0555   0.00196
+         -0.0577   0.00126
+         -0.0601   0.00166
+         -0.0558   0.00192
+         -0.0960   0.00264
+         -0.0943   0.00171
+         -0.0549   0.00211
+         -0.0568   0.00139
+         -0.0601   0.00168
+         -0.0582   0.00170
+         -0.0944   0.00243
+         -0.0931   0.00245
+         -0.0555   0.00196
+         -0.0577   0.00124
+         -0.0601   0.00164
+         -0.0558   0.00192
+         -0.0960   0.00264
+         -0.0943   0.00169
+         -0.0549   0.00208
+         -0.0568   0.00139
+         -0.0601   0.00167
+         -0.0582   0.00169
+         -0.0944   0.00243
+         -0.0931   0.00244

@@ -1,0 +1,3 @@
+Error in checkCluster(cl) : not a valid cluster
+Calls: do.call -> parLapply -> defaultCluster -> checkCluster
+Execution halted
