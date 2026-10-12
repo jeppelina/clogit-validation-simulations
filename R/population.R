@@ -7,25 +7,44 @@
 # the whole matching process.
 # =============================================================================
 
-make_population <- function(N, shares = c(0.7, 0.2, 0.1), edu_sd = 1) {
+# seg: residential segregation, 0 to 1, or NULL for no space at all. With
+# space, everyone lives on the unit square: with probability seg near their
+# group's centre (sd 0.08), otherwise anywhere at random.
+GROUP_CENTRES <- rbind(c(0.25, 0.25), c(0.75, 0.25), c(0.5, 0.75),
+                       c(0.25, 0.75), c(0.75, 0.75))
+
+make_population <- function(N, shares = c(0.7, 0.2, 0.1), edu_sd = 1,
+                            seg = NULL) {
   draw_side <- function() {
     sizes <- round(N * shares)
     sizes[1] <- N - sum(sizes[-1])
-    data.frame(id = seq_len(N),
-               group = rep(seq_along(shares), times = sizes),
-               edu = rnorm(N, 0, edu_sd))
+    d <- data.frame(id = seq_len(N),
+                    group = rep(seq_along(shares), times = sizes),
+                    edu = rnorm(N, 0, edu_sd))
+    if (!is.null(seg)) {
+      near <- runif(N) < seg
+      cx <- GROUP_CENTRES[d$group, 1]; cy <- GROUP_CENTRES[d$group, 2]
+      d$x <- ifelse(near, pmin(pmax(rnorm(N, cx, 0.08), 0), 1), runif(N))
+      d$y <- ifelse(near, pmin(pmax(rnorm(N, cy, 0.08), 0), 1), runif(N))
+    }
+    d
   }
   list(men = draw_side(), women = draw_side())
 }
 
+ln_dist <- function(x1, y1, x2, y2) log(sqrt((x1 - x2)^2 + (y1 - y2)^2) + 0.01)
+
 # Systematic utility for every man-woman pair, from one side's coefficients.
-# beta: named vector with any of same_group, edu_diff.
+# beta: named vector with any of same_group, edu_diff, ln_dist.
 pair_V <- function(pop, beta) {
   V <- matrix(0, nrow(pop$men), nrow(pop$women))
-  if (!is.null(beta[["same_group"]]))
+  if ("same_group" %in% names(beta))
     V <- V + beta[["same_group"]] * outer(pop$men$group, pop$women$group, "==")
-  if (!is.null(beta[["edu_diff"]]))
+  if ("edu_diff" %in% names(beta))
     V <- V + beta[["edu_diff"]] * abs(outer(pop$men$edu, pop$women$edu, "-"))
+  if ("ln_dist" %in% names(beta))
+    V <- V + beta[["ln_dist"]] * log(sqrt(outer(pop$men$x, pop$women$x, "-")^2 +
+                                          outer(pop$men$y, pop$women$y, "-")^2) + 0.01)
   V
 }
 

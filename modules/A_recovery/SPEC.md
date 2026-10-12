@@ -1,6 +1,6 @@
 # Module A: Recovery
 
-**Status:** spec revised 2026-10-12 after Jesper's comments and the A0 pilot.
+**Status:** spec revised 2026-10-13 after the mechanism validation. Production run: `run_A.R`.
 Stylised toy model by design: no calibration to Swedish magnitudes.
 **Replaces:** old Module 1 (group size), Module 2 (spatial), the oracle half of
 Module 1b, and the Module 4 selectivity sweep.
@@ -34,20 +34,27 @@ score, N(0, 1).
 - Optional outside option: u0 + Gumbel per person. The default is
   u0 = -Inf, meaning nobody prefers to stay single.
 
-**Partnering: deferred acceptance among the people you meet**
-(`R/matching.R`).
+**Partnering: sequential search with deferred acceptance**
+(`R/matching.R::search_market`; validated in `VALIDATION.md`).
 
-- Each person meets k random people of the other sex. Meetings are mutual and
-  unrelated to traits.
-- Proposers work down their list of the people they met, best first, and
-  skip anyone below their outside option.
-- Receivers hold the best proposal so far and drop it if a better one comes.
-- The process runs until no proposer has anyone left to try.
-- The result is stable with respect to the meeting network. Setting
-  k = everyone gives textbook Gale-Shapley.
-- `tests/test_matching.R` verifies: one-to-one matching, couples only among
-  people who met, no blocking pairs, and an identical result from identical
-  utilities.
+- Tastes are fixed: utilities and outside options are drawn once.
+- Each round, everyone still single meets new people of the other sex at
+  random. Meetings are mutual and accumulate.
+- After each round the market clears by deferred acceptance among everyone
+  who has met. Couples stay provisional until the last round.
+- The final matching is stable with respect to who met whom. Meeting
+  everyone gives textbook Gale-Shapley.
+- **The friction parameter is the absolute number of people met, not a share
+  of N** (VALIDATION.md, V3).
+- The outside option level u0 is calibrated per cell to **85% pairing**.
+  That separates singlehood from friction.
+- `tests/test_matching.R` (100+ checks) verifies:
+  - one-to-one couples;
+  - couples only among people who met;
+  - no blocking pairs on the final network;
+  - equivalence to Gale-Shapley at full budget;
+  - the meeting budget;
+  - the calibration.
 
 The **oracle** (each ego picks freely, with no capacity limit and no say for
 the other side) is kept as the reference, because it is the process clogit
@@ -63,7 +70,7 @@ assumes.
 - With identical coefficients across sexes, the men's and women's estimates
   should agree. They do in the pilot.
 
-## A0 pilot (2026-10-12, 20 reps per cell)
+## A0 pilot (2026-10-12, 20 reps per cell; one-shot meetings, superseded by VALIDATION.md)
 
 `results/pilot_A0_summary.csv`. rho = estimate / target, where the target
 is b for the oracle and 2b for deferred acceptance (DA).
@@ -85,15 +92,16 @@ What the pilot shows:
 2. **Two-sided matching recovers the pair surplus up to a scale factor.**
    With everyone meeting everyone, rho is about 0.93 to 0.95 at
    N = 1,000 to 2,000. The proposing side barely matters.
-3. **Search frictions shrink every coefficient by the same factor.** Fewer
-   meetings pull rho down (0.94, then 0.72, then 0.42), but within each cell
-   rho is the same for both terms, to within 0.03.
+3. **Search frictions shrink every coefficient by a similar factor.** Fewer
+   meetings pull rho down (0.94, then 0.72, then 0.42), and within each cell
+   rho is close for both terms (within 0.03 here; up to 0.07 in the fuller
+   validation, so the shared scale is approximate).
    - Frictions act like extra noise in the logit scale: absolute levels fall
      and **ratios between coefficients survive**.
    - An outside option restores much of the level, because people can
      refuse a poor match instead of settling.
-4. **The working target is therefore the pair surplus times a common
-   scale.** That is what A1 to A3 test the stability of.
+4. **The working target is therefore the pair surplus times an
+   approximately common scale.** That is what A1 to A3 test the stability of.
 
 Point 3 carries a warning for Module D. If the scale depends on market
 frictions, a change in frictions across cohorts would look like a change in
@@ -103,25 +111,23 @@ every coefficient at once. D should test this directly.
 
 | Block | Question | Varies |
 |---|---|---|
-| **A0 Anchor** | What does each mechanism recover with no threats? | Done as pilot; production run at 200 reps |
+| **A0 Anchor** | What does each mechanism recover with no threats? | Baseline: 70/20/10, no space, J = 100 uniform |
 | **A1 Group size** | Does the common scale hold when one group dominates or is tiny? | Shares {33/33/33, 70/20/10, 85/10/5, 90/8/2} |
 | **A2 Space** | Does ln(distance) absorb spatial confounding when groups are segregated? | Segregation {none, moderate, high} x model {with, without ln(dist)} |
-| **A3 Sampling** | Do sampled and stratified choice sets recover the target? | J {30, 100}; stratified (oversampled same-group alternatives) with and without the McFadden-Manski offset; fastclogit vs `survival::clogit` on the stratified data |
+| **A3 Sampling** | Do sampled and stratified choice sets recover the target? | J = 30 uniform; stratified (50 of 100 alternatives from ego's own group) with and without the McFadden-Manski offset. Separately: fastclogit vs `survival::clogit` on the stratified data |
 
-**Mechanisms in A1 to A3:**
+**Settings, run in every block (A0 to A3):**
 
-- Oracle.
-- DA at two friction levels:
-  - k = everyone (frictionless);
-  - k = 50 (frictional).
-- Outside option off.
-
-Running both DA levels tests whether the threats interact with frictions.
+| Setting | Mechanism | Meetings | Outside option | Target |
+|---|---|---|---|---|
+| `oracle` | one-sided choice | everyone | off | b |
+| `da_full` | deferred acceptance | everyone meets everyone (frictionless reference) | 85% pairing | 2b x scale |
+| `da_seq` | sequential search, budget 50, 10 rounds (about 17 met; frictional default) | 50 | 85% pairing | 2b x scale |
 
 **A2 adds space.** People sit on a unit square. Groups cluster around their
 own centres, with the tightness set by the segregation level. Utility gains
-b_d * ln(distance), with b_d = -0.5, and both sides get the same term, as
-above.
+b_d * ln(distance + 0.01), with b_d = -0.5, for both sides. Meetings stay
+random with respect to distance: in A, space enters through tastes only.
 
 **Replications:** 200 per cell.
 
@@ -130,7 +136,9 @@ above.
 | Mechanism | Passes if | Fails if |
 |---|---|---|
 | Oracle | abs(rho - 1) < 0.02 and 95% coverage in [0.93, 0.97] | Bias appears with small groups, segregation or stratified sampling |
-| DA | Within each DA setting, rho stays within 0.05 of its A0 value **and** is equal across terms (within 0.05) | rho shifts with group shares, segregation or sampling, or differs between terms |
+| DA | Within each DA setting, each term's rho stays within 0.05 of its A0 value | rho shifts with group shares, segregation or sampling |
+
+The gap in rho between terms is reported, not required to be zero: validation showed the shared scale is approximate (gap up to 0.07).
 
 In A2, the model without ln(distance) is expected to fail under segregation.
 That is a demonstration of omitted-variable bias, not a test of the
