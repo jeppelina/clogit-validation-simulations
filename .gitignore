@@ -2,22 +2,18 @@
 .DS_Store
 
 # Large R objects
-results/*.rds
+*.rds
 
 # Internal development notes
 CLAUDE.md
-WRITING_PLAN.md
 
-# Runtime logs
-sim_log.txt
-
-# Module 5 interpretive/log files (preliminary, can become stale)
-module5/results/module5_interpretation.md
-module5/results/module5_validation.log
-
-# Interpretive summaries (can become stale; CSVs are the ground truth)
-results/*_summary.md
-results/full_results_report.md
-
-# LaTeX manuscript (maintained separately)
+# LaTeX supplement for the first-generation modules (maintained separately, stale)
 Simulation_Supplement/
+
+# First-generation archive: files that were untracked before the 2026-10 move
+archive/2026_first_generation/WRITING_PLAN.md
+archive/2026_first_generation/sim_log.txt
+archive/2026_first_generation/module5_boundary_matrix/results/module5_interpretation.md
+archive/2026_first_generation/module5_boundary_matrix/results/module5_validation.log
+archive/2026_first_generation/results/*_summary.md
+archive/2026_first_generation/results/full_results_report.md
