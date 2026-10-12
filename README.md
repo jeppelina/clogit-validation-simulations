@@ -77,8 +77,10 @@ Rscript modules/A_recovery/analyse_A.R
 and likewise for B to D.
 
 Runs use a PSOCK cluster (separate R processes): forked workers crash
-`survival::clogit` on macOS. Each cell has its own RNG stream, so results
-do not depend on the number of workers. Every results file records the git
+`survival::clogit` on macOS. Each cell has its own RNG stream. Module D
+also sets seeds inside workers, so its exact numbers reproduce only with
+the same number of workers (`detectCores() - 2`); the averages do not
+depend on it. Every results file records the git
 commit and seed it was produced with. On a 12-core laptop each module's
 production run takes 15 to 40 minutes.
 

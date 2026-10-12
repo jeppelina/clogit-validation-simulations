@@ -40,7 +40,9 @@ on same-group alternatives.
 **The truth, by counterfactual.**
 
 - Cohort 3's population is matched a second time with cohort 1's tastes,
-  using the same people, shocks and meetings.
+  using the same people and shocks (and the same random numbers for
+  meetings; under sequential search who meets whom can still differ,
+  because meetings depend on who is single).
 - true coefficient = endogamy(cohort 3, own tastes) - endogamy(cohort 3,
   cohort 1's tastes)
 - true composition = endogamy(cohort 3, cohort 1's tastes) - endogamy(cohort

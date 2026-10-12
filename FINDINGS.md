@@ -60,7 +60,10 @@ majority looks like hardening** (Modules A and D).
   - which sex is the ego;
   - Paper 3's own alter-category specification.
 - Real changes in tastes keep their sign when they are larger than the
-  bias, but a real softening is understated by about half.
+  bias. The bias is an upward shift, so a real softening smaller than it
+  would be reported as hardening.
+- An independent code review re-implemented the pipeline and reproduced
+  the result. It persists with no sampling of alternatives.
 - **A margin-free measure, the log odds ratio of the couple table, stays
   flat when tastes are flat and moves when they move.** It is a check that
   can be run on the register data.
