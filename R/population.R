@@ -34,6 +34,25 @@ make_population <- function(N, shares = c(0.7, 0.2, 0.1), edu_sd = 1,
   list(men = draw_side(shares), women = draw_side(shares_w, edu_shift_w))
 }
 
+# Institutions (Module C). K institutions, each with an education level c_k
+# spread over the education range (and a trait level for the unobserved
+# trait t, if present). People join institution k with probability
+# proportional to exp(-sort * distance to (c_k, t_k)), so institutions sort on
+# education (and t). trait = TRUE adds t ~ N(0, 1) to everyone.
+add_institutions <- function(pop, K = 20, sort = 2, trait = FALSE) {
+  c_edu <- qnorm(seq(0.5 / K, 1 - 0.5 / K, length.out = K))
+  c_t <- if (trait) sample(c_edu) else rep(0, K)
+  assign_side <- function(d) {
+    if (trait) d$t <- rnorm(nrow(d))
+    tt <- if (trait) d$t else rep(0, nrow(d))
+    dist <- abs(outer(d$edu, c_edu, "-")) + abs(outer(tt, c_t, "-"))
+    w <- exp(-sort * dist)
+    d$inst <- apply(w, 1, function(p) sample.int(K, 1, prob = p))
+    d
+  }
+  list(men = assign_side(pop$men), women = assign_side(pop$women))
+}
+
 ln_dist <- function(x1, y1, x2, y2) log(sqrt((x1 - x2)^2 + (y1 - y2)^2) + 0.01)
 
 # Systematic utility for every man-woman pair, from one side's coefficients.
@@ -49,6 +68,10 @@ pair_V <- function(pop, beta, side = "men") {
   if ("ln_dist" %in% names(beta))
     V <- V + beta[["ln_dist"]] * log(sqrt(outer(pop$men$x, pop$women$x, "-")^2 +
                                           outer(pop$men$y, pop$women$y, "-")^2) + 0.01)
+  if ("same_inst" %in% names(beta))
+    V <- V + beta[["same_inst"]] * outer(pop$men$inst, pop$women$inst, "==")
+  if ("t_diff" %in% names(beta))
+    V <- V + beta[["t_diff"]] * abs(outer(pop$men$t, pop$women$t, "-"))
   if ("alt_edu" %in% names(beta))
     V <- V + beta[["alt_edu"]] * (if (side == "men")
       matrix(pop$women$edu, nrow(pop$men), nrow(pop$women), byrow = TRUE) else

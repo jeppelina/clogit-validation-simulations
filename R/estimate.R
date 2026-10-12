@@ -17,6 +17,10 @@ pair_vars <- function(ego, alt, ego_df, alt_df) {
     same_group = as.integer(ego_df$group[ego] == alt_df$group[alt]),
     edu_diff = abs(ego_df$edu[ego] - alt_df$edu[alt]),
     alt_edu = alt_df$edu[alt])
+  if (!is.null(ego_df$inst))
+    d$same_inst <- as.integer(ego_df$inst[ego] == alt_df$inst[alt])
+  if (!is.null(ego_df$t))
+    d$t_diff <- abs(ego_df$t[ego] - alt_df$t[alt])
   if (!is.null(ego_df$x))
     d$ln_dist <- ln_dist(ego_df$x[ego], ego_df$y[ego], alt_df$x[alt], alt_df$y[alt])
   d
@@ -64,4 +68,31 @@ fit_clogit <- function(cs, terms = c("same_group", "edu_diff"), offset = FALSE) 
   fit <- clogit(f, data = cs, method = "breslow")
   data.frame(term = terms, est = unname(coef(fit)[terms]),
              se = unname(sqrt(diag(vcov(fit)))[match(terms, names(coef(fit)))]))
+}
+
+# KHB decomposition (Karlson, Holm and Breen 2012) for one mediator.
+# Full model: focal + mediator + controls. Reduced model: focal + residualised
+# mediator + controls, where the mediator is residualised on focal and
+# controls by OLS over all choice-set rows. Both models are on the same scale,
+# so the change in the focal coefficient is the mediated part.
+khb_share <- function(cs, focal, mediator, controls = character(0)) {
+  rhs_x <- paste(c(focal, controls), collapse = " + ")
+  cs$.z_res <- resid(lm(as.formula(paste(mediator, "~", rhs_x)), data = cs))
+  f_full <- clogit(as.formula(paste("chosen ~", rhs_x, "+", mediator, "+ strata(chooser)")),
+                   data = cs, method = "breslow")
+  f_red <- clogit(as.formula(paste("chosen ~", rhs_x, "+ .z_res + strata(chooser)")),
+                  data = cs, method = "breslow")
+  b_full <- coef(f_full)[[focal]]; b_red <- coef(f_red)[[focal]]
+  data.frame(b_reduced = b_red, b_full = b_full, b_mediator = coef(f_full)[[mediator]],
+             share = (b_red - b_full) / b_red,
+             cor_med_focal = cor(cs[[mediator]], cs[[focal]]))
+}
+
+# Predicted probability mass on alternatives with flag = 1 (e.g. same group),
+# averaged over choosers, at coefficient vector b (named by term).
+predicted_share <- function(cs, b, flag = "same_group") {
+  eta <- as.matrix(cs[, names(b)]) %*% b
+  eta <- eta - ave(eta, cs$chooser, FUN = max)
+  p <- exp(eta); p <- p / ave(p, cs$chooser, FUN = sum)
+  mean(tapply(p * cs[[flag]], cs$chooser, sum))
 }
