@@ -17,6 +17,10 @@ pair_vars <- function(ego, alt, ego_df, alt_df) {
     same_group = as.integer(ego_df$group[ego] == alt_df$group[alt]),
     edu_diff = abs(ego_df$edu[ego] - alt_df$edu[alt]),
     alt_edu = alt_df$edu[alt])
+  # alter-group indicators (reference: group 1), as in Paper 3's alter-category
+  # specification
+  for (k in setdiff(sort(unique(alt_df$group)), 1))
+    d[[paste0("alt_g", k)]] <- as.integer(alt_df$group[alt] == k)
   if (!is.null(ego_df$inst))
     d$same_inst <- as.integer(ego_df$inst[ego] == alt_df$inst[alt])
   if (!is.null(ego_df$t))
