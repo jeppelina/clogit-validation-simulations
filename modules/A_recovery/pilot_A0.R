@@ -15,7 +15,7 @@ J <- 100; REPS <- 20; SEED <- 20261012
 COMMIT <- system("git rev-parse --short HEAD", intern = TRUE)
 
 cells <- rbind(
-  data.frame(mech = "oracle", proposer = NA, k = NA, u0 = -Inf, N = 1000),
+  data.frame(mech = "oracle", proposer = "none", k = 0, u0 = -Inf, N = 1000),  # k = 0: no meeting network
   expand.grid(mech = "da", proposer = "men", k = c(10, 50, 1000),
               u0 = c(-Inf, 2), N = 1000, stringsAsFactors = FALSE),
   data.frame(mech = "da", proposer = "women", k = 1000, u0 = -Inf, N = 1000),
@@ -71,7 +71,8 @@ raw$commit <- COMMIT; raw$seed <- SEED
 dir.create("modules/A_recovery/results", showWarnings = FALSE, recursive = TRUE)
 write.csv(raw, "modules/A_recovery/results/pilot_A0_raw.csv", row.names = FALSE)
 
-# Summary: ratio to target, coverage of the target by the 95% CI
+# Summary: ratio to target, coverage of the target by the 95% CI.
+# (Grouping columns must not contain NA: aggregate() drops those rows silently.)
 raw$ratio <- raw$est / raw$target
 raw$covered <- abs(raw$est - raw$target) <= 1.96 * raw$se
 key <- c("mech", "proposer", "k", "u0", "N", "ego_sex", "term")

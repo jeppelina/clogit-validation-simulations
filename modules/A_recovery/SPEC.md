@@ -1,197 +1,152 @@
 # Module A: Recovery
 
-**Status:** draft spec for sign-off, 2026-10-12. No code written yet.
+**Status:** spec revised 2026-10-12 after Jesper's comments and the A0 pilot.
+Stylised toy model by design: no calibration to Swedish magnitudes.
 **Replaces:** old Module 1 (group size), Module 2 (spatial), the oracle half of
-Module 1b, and the selectivity sweep in Module 4.
+Module 1b, and the Module 4 selectivity sweep.
 
 ## The one claim
 
-> Under the conditions the papers actually face (unequal group sizes,
-> residential segregation, county choice sets, sampled and stratified
-> alternatives), conditional logit recovers its target. Under one-sided
-> (oracle) choice the target is the chooser's own coefficient. Under stable
-> two-sided matching (Gale-Shapley) the target is the pair surplus, the sum of
-> both sides' coefficients.
+> Conditional logit recovers its target under unequal group sizes, residential
+> segregation and sampled or stratified choice sets. Under one-sided (oracle)
+> choice the target is the chooser's own coefficient. Under two-sided matching
+> the target is the pair surplus (the sum of both sides' coefficients), up to
+> a scale factor that is the same for every coefficient.
 
-A has a second job: it is the control condition for B, C and D. If A
-passes, any distortion found later comes from the departure that module
-introduces, not from the pipeline.
+A is also the control condition for B, C and D: if A passes, a distortion
+found later comes from the departure that module introduces.
 
-## Why the Gale-Shapley target is the pair surplus
+## The model
 
-When both partners must prefer the match to their alternatives, the
-frequency of a pair type depends on what both sides get from it. In large
-markets with logit taste shocks, stable matching produces match frequencies
-in which the two sides' systematic utilities enter as a sum (Dagsvik 2000;
-Menzel 2015), which is the Choo-Siow (2006) pair surplus. So a one-sided
-clogit fitted to stable matches should estimate beta_M + beta_W, not
-beta_M. The April appendix measured two-sided bias against beta_M alone,
-which is part of why it reported "overestimation".
+**Market.** N men and N women (default 1,000 each). Three ancestry groups
+(default shares 70/20/10, same for both sexes). Education is one continuous
+score, N(0, 1).
 
-Whether this limit holds at our market sizes is not assumed. Block A0 tests
-it. Two acceptable outcomes:
+**Utility.** Man m's utility from woman w, and w's from m:
 
-- **Recovers:** estimate / surplus is within 5% of 1.
-- **Stable bias:** the ratio departs from 1 but holds steady across the
-  A1 to A3 conditions. We then report the ratio as a known scale factor.
+    U_mw = b_g * same_group + b_e * |edu_m - edu_w| + eps_mw
+    V_wm = b_g * same_group + b_e * |edu_m - edu_w| + eta_wm
 
-The failure that matters is a ratio that **moves with the conditions**: that
-would mean group size, segregation or sampling interacts with
-two-sidedness, and the papers' comparisons across groups or designs would
-inherit it.
+- Default coefficients: b_g = 1, b_e = -1.
+- Both sexes have the same coefficients in A. Asymmetry between the sexes is
+  Module B's subject.
+- Shocks are i.i.d. Gumbel, drawn once per pair and held fixed.
+- Optional outside option: u0 + Gumbel per person. The default is
+  u0 = -Inf, meaning nobody prefers to stay single.
 
-## Population and utility (shared by every block)
+**Partnering: deferred acceptance among the people you meet**
+(`R/matching.R`).
 
-- Two sexes, N per sex (default 1,000; A0 varies it).
-- Three ancestry groups (shares vary in A1; default 70/20/10).
-- Education in three levels, to mirror the papers' `Edudiff3`.
-- Location on a 2D grid divided into 9 counties; groups concentrated
-  according to a segregation parameter (A2).
-- Utility of man m for woman w, and of w for m:
+- Each person meets k random people of the other sex. Meetings are mutual and
+  unrelated to traits.
+- Proposers work down their list of the people they met, best first, and
+  skip anyone below their outside option.
+- Receivers hold the best proposal so far and drop it if a better one comes.
+- The process runs until no proposer has anyone left to try.
+- The result is stable with respect to the meeting network. Setting
+  k = everyone gives textbook Gale-Shapley.
+- `tests/test_matching.R` verifies: one-to-one matching, couples only among
+  people who met, no blocking pairs, and an identical result from identical
+  utilities.
 
-      U_mw = b_g * same_group + b_e * same_edu + b_d * ln(dist) + eps_mw
-      V_wm = b_g * same_group + b_e * same_edu + b_d * ln(dist) + eta_wm
+The **oracle** (each ego picks freely, with no capacity limit and no say for
+the other side) is kept as the reference, because it is the process clogit
+assumes.
 
-  All three terms are symmetric in the pair. **Both sexes have identical
-  coefficients in A**; asymmetry between the sexes is Module B's subject.
-  So the oracle target is b, and the Gale-Shapley target is 2b.
-- Shocks eps and eta are i.i.d. Gumbel, **drawn once per pair and held
-  fixed** for the whole matching process.
-- Each agent has an outside option, u0 + Gumbel shock. Partners below it are
-  unacceptable. u0 is calibrated to a target pairing rate.
-- Default coefficients (per side): b_g = 1.0, b_e = 0.5, b_d = -0.5. To be
-  confirmed by a calibration gate (see below), not taken as given.
+**Estimation (as in the papers).**
 
-## Matching
-
-- **Oracle:** each ego picks the best option, including staying single, from
-  the full opposite-sex pool. No capacity limit. This is exactly the process
-  clogit assumes.
-- **Gale-Shapley, men proposing; Gale-Shapley, women proposing.**
-  - Full preference lists, truncated at the outside option.
-  - Run to convergence, with no round cap.
-  - Verified stable: no blocking pairs, checked exhaustively on small
-    markets in `tests/`.
-- Threshold search is not used.
-
-**Neither existing implementation qualifies.**
-
-- `utils.R::deferred_acceptance_matching` runs on a single-sex pool.
-- Module 7's deferred acceptance, also called as `gale_shapley` by Module 8,
-  has three problems:
-  - each proposer samples 8 random candidates per round;
-  - rounds are capped;
-  - shocks are redrawn at every comparison, so preferences are not fixed and
-    the outcome is not a stable matching.
-
-A uses a new implementation in `R/matching.R`. Separately, the audit has to
-record that Module 7 Exp 6 and Module 8's "Gale-Shapley" results come from
-that limited-search process (see "Consequences outside A").
-
-## Estimation
-
-Mirrors the papers:
-
-- Separate models with men as egos and women as egos.
+- One model per ego sex.
 - Egos are partnered individuals only.
-- The actual partner plus J - 1 alternatives sampled from the opposite-sex
-  pool.
+- Each choice set is the actual partner plus J - 1 = 99 alternatives drawn
+  uniformly from the opposite-sex pool.
 - Estimator: `survival::clogit`.
+- With identical coefficients across sexes, the men's and women's estimates
+  should agree. They do in the pilot.
 
-By symmetry the men's and women's estimates should agree in A. That
-agreement is a built-in check on the code.
+## A0 pilot (2026-10-12, 20 reps per cell)
+
+`results/pilot_A0_summary.csv`. rho = estimate / target, where the target
+is b for the oracle and 2b for deferred acceptance (DA).
+
+| Mechanism | k | u0 | Pairing rate | rho, same group | rho, education |
+|---|---|---|---|---|---|
+| Oracle | n/a | none | 1.00 | 0.99 to 1.00 | 1.01 |
+| DA, men propose | everyone | none | 1.00 | 0.94 | 0.93 |
+| DA, women propose | everyone | none | 1.00 | 0.92 | 0.93 |
+| DA, men propose, N = 500 / 2,000 | everyone | none | 1.00 | 0.87 / 0.94 | 0.88 / 0.95 |
+| DA, men propose | 50 | none | 0.99 | 0.72 | 0.73 |
+| DA, men propose | 10 | none | 0.95 | 0.42 | 0.44 |
+| DA, men propose | 50 | 2 | 0.32 | 0.87 | 0.88 |
+| DA, men propose | 10 | 2 | 0.11 | 0.86 to 0.90 | 0.87 to 0.88 |
+
+What the pilot shows:
+
+1. **The oracle recovers its target.** The pipeline works.
+2. **Two-sided matching recovers the pair surplus up to a scale factor.**
+   With everyone meeting everyone, rho is about 0.93 to 0.95 at
+   N = 1,000 to 2,000. The proposing side barely matters.
+3. **Search frictions shrink every coefficient by the same factor.** Fewer
+   meetings pull rho down (0.94, then 0.72, then 0.42), but within each cell
+   rho is the same for both terms, to within 0.03.
+   - Frictions act like extra noise in the logit scale: absolute levels fall
+     and **ratios between coefficients survive**.
+   - An outside option restores much of the level, because people can
+     refuse a poor match instead of settling.
+4. **The working target is therefore the pair surplus times a common
+   scale.** That is what A1 to A3 test the stability of.
+
+Point 3 carries a warning for Module D. If the scale depends on market
+frictions, a change in frictions across cohorts would look like a change in
+every coefficient at once. D should test this directly.
 
 ## Blocks
 
-| Block | Question | Varies | Matching |
-|---|---|---|---|
-| **A0 Anchor** | With no threats present, what does each mechanism recover? | N per sex {500, 1,000, 2,000} x pairing rate {~95%, ~75%, ~50%} | Oracle, GS-men, GS-women |
-| **A1 Group size** | Does recovery hold when one group dominates and one is tiny? | Shares {33/33/33, 70/20/10, 85/10/5, 90/8/2} | Oracle, GS |
-| **A2 Space** | Does log-distance absorb spatial confounding, and do county choice sets change that? | Segregation {none, moderate, high} x model {with, without ln(dist)} x choice set {national, county} | Oracle, GS |
-| **A3 Sampling** | Do the papers' choice-set designs recover the target? | J {30, 100}; uniform vs stratified (oversampled same-group alternatives) with and without the McFadden-Manski offset | Oracle, GS |
+| Block | Question | Varies |
+|---|---|---|
+| **A0 Anchor** | What does each mechanism recover with no threats? | Done as pilot; production run at 200 reps |
+| **A1 Group size** | Does the common scale hold when one group dominates or is tiny? | Shares {33/33/33, 70/20/10, 85/10/5, 90/8/2} |
+| **A2 Space** | Does ln(distance) absorb spatial confounding when groups are segregated? | Segregation {none, moderate, high} x model {with, without ln(dist)} |
+| **A3 Sampling** | Do sampled and stratified choice sets recover the target? | J {30, 100}; stratified (oversampled same-group alternatives) with and without the McFadden-Manski offset; fastclogit vs `survival::clogit` on the stratified data |
 
-**Two rules for the GS column in A1 to A3:**
+**Mechanisms in A1 to A3:**
 
-- GS-women runs only if A0 shows that the proposing side changes the
-  estimates.
-- Pairing rate is held at the A0 value closest to the papers' setting.
+- Oracle.
+- DA at two friction levels:
+  - k = everyone (frictionless);
+  - k = 50 (frictional).
+- Outside option off.
 
-**A3 also carries a kernel check.** On the stratified-with-offset data, fit
-the same model with the patched fastclogit kernel (as used in Paper 4) and
-with `survival::clogit`. Coefficients should agree to 1e-6, and the
-fastclogit fit should converge on the gradient criterion, not on the
-plateau rule.
+Running both DA levels tests whether the threats interact with frictions.
 
-**Calibration gate (before any block runs).** With the default
-coefficients, one realisation per mechanism must show:
+**A2 adds space.** People sit on a unit square. Groups cluster around their
+own centres, with the tightness set by the segregation level. Utility gains
+b_d * ln(distance), with b_d = -0.5, and both sides get the same term, as
+above.
 
-- majority-group endogamy in a plausible range (80 to 95%);
-- no complete separation in any per-sex model;
-- the pairing rate at its target.
+**Replications:** 200 per cell.
 
-If not, adjust the coefficients and record the change here before running
-the blocks.
-
-**Replications:** 200 per cell. The runtime estimate comes after the GS
-implementation is benchmarked.
-
-## Metrics and pass criteria
-
-For each coefficient, cell and ego sex, report:
-
-- mean estimate, relative bias, RMSE, and 95% coverage against the
-  mechanism's target;
-- under GS, the ratio rho = estimate / surplus.
+## Pass criteria
 
 | Mechanism | Passes if | Fails if |
 |---|---|---|
-| Oracle | abs(relative bias) < 2% and coverage in [0.93, 0.97] in every cell | Bias appears with small groups, county sets or stratified sampling |
-| GS | rho within 5% of 1, **or** rho stable: within 5 percentage points of its A0 value at the same N and pairing rate, across all A1 to A3 cells | rho moves with group shares, segregation or sampling design |
+| Oracle | abs(rho - 1) < 0.02 and 95% coverage in [0.93, 0.97] | Bias appears with small groups, segregation or stratified sampling |
+| DA | Within each DA setting, rho stays within 0.05 of its A0 value **and** is equal across terms (within 0.05) | rho shifts with group shares, segregation or sampling, or differs between terms |
 
-**What the omitted-distance model is for.** In A2, the model without
-ln(dist) is expected to fail under segregation. That is a demonstration,
-not a test of the pipeline. It is reported as the size of the omitted-
-variable bias, under each mechanism.
+In A2, the model without ln(distance) is expected to fail under segregation.
+That is a demonstration of omitted-variable bias, not a test of the
+pipeline.
 
 ## Outputs
 
-- `results/A0.csv` to `results/A3.csv`: one row per cell x coefficient x
-  ego sex.
-- `REPORT.md`: the claim, a pass/fail line per block, and one figure
-  (rho across all cells, grouped by block).
-- **A comparison table against the old Modules 1, 2 and 4**, so every
-  changed number has a stated reason.
-- Every results CSV carries the git commit and seed it was produced with.
+- `results/A{0..3}.csv`: one row per cell x coefficient x ego sex, carrying
+  the commit and seed.
+- `REPORT.md`: one pass/fail line per block, and one figure of rho across all
+  cells.
+- A comparison table against the old Modules 1, 2 and 4.
 
 ## Not in A
 
-- Sexes with different coefficients, and which side holds the assortativity
-  (Module B).
+- Sexes with different coefficients and the direction of assortativity (B).
 - Homophily versus status (B).
-- Mediation and channel shares (C).
+- Mediation (C).
 - Change over time (D).
-- Threshold search and selectivity sweeps (dropped).
-
-## Consequences outside A
-
-The audit has to answer whether Module 8's Problem B result, and Module 7
-Exp 6, survive a real stable matching. In particular: "the sex gap appears
-only under competitive matching". Those results currently rest on a
-limited-search process with redrawn shocks. Module B will rerun the
-relevant cases on the new implementation.
-
-## Open questions for Jesper
-
-1. **County choice sets.** My default:
-   - egos are kept regardless of where their partner lives;
-   - the actual partner is always in the set;
-   - alternatives are drawn from the ego's county.
-
-   Is that what Papers 1 and 3 do with partners from outside the county?
-2. **Default J.** I propose 100 (Papers 1 and 3), with 30 as the A3
-   variation. Or the reverse?
-3. **Education as a three-level same/different term** to mirror `Edudiff3`,
-   rather than the old continuous |edu difference|. Agree?
-4. **Calibration targets.** Is 80 to 95% majority endogamy and a 75%
-   pairing rate a fair stylised Sweden, or do you want them pinned to
-   numbers from the papers?
