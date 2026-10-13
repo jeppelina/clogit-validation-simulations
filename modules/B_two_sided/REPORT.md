@@ -1,3 +1,9 @@
+> **Superseded (2026-10-14).** Module A version 3 now carries these tests
+> (test 3: sex differences; test 4: status vs homophily) with the
+> well-specified model. Module A v3 shows that this report's sex-ratio gap
+> (B1b) disappears once an alter-group constant is in the model. Kept for
+> the record.
+
 # Module B report: what two-sided data cannot tell us
 
 **Run:** 2026-10-13. `run_B.R` (200 reps per cell), `analyse_B.R`,

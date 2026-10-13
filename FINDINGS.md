@@ -17,38 +17,32 @@ module's `REPORT.md`.
 ## Five claims
 
 **1. A well-specified conditional logit does what it aims to do, up to a
-scale set by search frictions** (Module A).
+scale set by search frictions** (Module A, test 1 and 2).
 - Well-specified means:
   - egos from every group pooled;
-  - one same-group term per group;
-  - alter-group constants.
+  - alter-group constants;
+  - distance in the model when there is space.
 - Under one-sided choice it recovers the true tastes.
-- Under two-sided matching it recovers the same quantity as a log-linear
-  model of the couple table: the pair-level assortativity, equal across
-  groups and stable from 33/33/33 to 85/10/5. Choice-set size and
-  stratified sampling (with the offset) do not matter.
-- The scale depends on how many potential partners people actually meet:
-  0.95 when everyone meets everyone, about 0.65 at about 17 meetings.
-  **Absolute coefficient sizes say as much about the market as about
-  tastes.**
-- **Limit:** under heavy residential segregation, two-sided matching shifts
-  about 10% of the weight from distance to the same-group terms, even in
-  this specification.
-
-**2. It cannot say which sex holds a taste** (Module B).
-- Worlds where only men, only women, or both care about ancestry give
-  identical men's and women's estimates.
-- With identical tastes, an unbalanced sex ratio within groups produces a
-  25% sex difference in the same-group coefficient.
-- **Sex differences in coefficients are not evidence of sex differences in
+- Under two-sided matching it recovers the pair-level assortativity (what
+  a log-linear model of the couple table measures) at a stable scale:
+  about 0.96 when everyone meets everyone, lower with search frictions.
+- It is free of group size (50% to 5% minority) and of residential
+  segregation (two layouts, moderate and strong). Without distance,
+  propinquity is read as endogamy: up to +25%.
+- **Absolute coefficient sizes say as much about the market as about
   tastes.**
 
-**3. Status preferences are invisible, and what they do produce looks like
-homophily** (Module B).
-- A taste for a more educated partner shrinks to about 15% of its value.
-  In a world with both homophily and status, only homophily is seen.
-- When status tastes are strong enough to sort couples, the model reports
-  homophily.
+**2. It cannot say which sex holds a taste** (Module A, test 3).
+- Worlds where only men, only women, or both care give identical men's and
+  women's estimates.
+- With the alter-group constant in the model, an unbalanced sex ratio does
+  not create a spurious sex gap. It does without the constant.
+
+**3. Status preferences are nearly invisible, and what they do produce
+looks like homophily** (Module A, test 4).
+- A status taste of 2 is estimated at 0.22.
+- The educational sorting that status competition produces (correlation
+  0.35) is reported as homophily: -0.56 where the truth is 0.
 - **Educational homogamy estimated from couples is evidence of sorting,
   not of a taste for similarity.**
 
