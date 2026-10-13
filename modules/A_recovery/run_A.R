@@ -1,130 +1,100 @@
 # =============================================================================
-# Module A production run: blocks A0 to A3, 200 reps per cell
-# =============================================================================
+# Module A (version 2) production run. See SPEC.md.
 # Run from the repo root:  Rscript modules/A_recovery/run_A.R
-# Settings (see SPEC.md):
-#   oracle   one-sided choice, no outside option        target = b
-#   da_full  everyone meets everyone, 85% pairing       target = 2b
-#   da_seq   sequential search, budget 50, 10 rounds,   target = 2b
-#            85% pairing
-# Parallel over reps with a PSOCK cluster (separate processes; forked
-# workers crash survival::clogit on macOS). Each cell gets its own RNG
-# stream, so results do not depend on the number of workers.
+# Every simulated market is fitted with several specifications; men as egos.
 # =============================================================================
 
 library(parallel)
-source("R/population.R"); source("R/matching.R"); source("R/estimate.R")
-
-REPS <- 200; SEED <- 20261013; TARGET_PAIR <- 0.85; N <- 1000
+for (f in c("population", "matching", "estimate", "run_helpers")) source(file.path("R", paste0(f, ".R")))
+REPS <- 200; SEED <- 20261110; N <- 1000
 N_WORKERS <- max(1, detectCores() - 2)
 COMMIT <- system("git rev-parse --short HEAD", intern = TRUE)
 OUT <- "modules/A_recovery/results"
 B2 <- c(same_group = 1, edu_diff = -1)
 B3 <- c(B2, ln_dist = -0.5)
 
-SETTINGS <- list(
-  oracle  = list(mech = "oracle"),
-  da_full = list(mech = "da", budget = N, rounds = 1),
-  da_seq  = list(mech = "da", budget = 50, rounds = 10)
-)
-
-# A cell = block, label, population spec, utility coefficients, and the
-# estimation designs to run on each simulated market.
-mk_cell <- function(block, label, shares = c(0.7, 0.2, 0.1), seg = NULL,
-                    beta = B2, designs)
-  list(block = block, label = label, shares = shares, seg = seg, beta = beta,
-       designs = designs)
-
-D_BASE <- list(list(design = "uniform_J100", sampler = "uniform", J = 100,
-                    terms = names(B2), offset = FALSE))
-D_SPACE <- list(
-  list(design = "with_dist", sampler = "uniform", J = 100, terms = names(B3), offset = FALSE),
-  list(design = "no_dist", sampler = "uniform", J = 100, terms = names(B2), offset = FALSE))
-D_SAMPLING <- list(
-  list(design = "uniform_J30", sampler = "uniform", J = 30, terms = names(B2), offset = FALSE),
-  list(design = "strat_offset", sampler = "strat", J = 100, terms = names(B2), offset = TRUE),
-  list(design = "strat_no_offset", sampler = "strat", J = 100, terms = names(B2), offset = FALSE))
-
+cell <- function(block, label, shares = c(0.7, 0.2, 0.1), seg = NULL, beta = B2)
+  list(block = block, label = label, shares = shares, seg = seg, beta = beta)
 CELLS <- c(
-  list(mk_cell("A0", "baseline 70/20/10", designs = D_BASE)),
-  lapply(list(c(1, 1, 1) / 3, c(0.85, 0.10, 0.05), c(0.90, 0.08, 0.02)), function(sh)
-    mk_cell("A1", paste0("shares ", paste(round(100 * sh), collapse = "/")),
-            shares = sh, designs = D_BASE)),
-  lapply(c(0, 0.5, 0.9), function(sg)
-    mk_cell("A2", paste0("segregation ", sg), seg = sg, beta = B3, designs = D_SPACE)),
-  list(mk_cell("A3", "sampling designs", designs = D_SAMPLING))
+  list(cell("A0", "70/20/10")),
+  lapply(list(c(1, 1, 1) / 3, c(.85, .10, .05), c(.90, .08, .02)), function(sh)
+    cell("A1", paste(round(100 * sh), collapse = "/"), shares = sh)),
+  lapply(c(0, 0.5, 0.9), function(sg) cell("A2", paste("segregation", sg), seg = sg, beta = B3)),
+  list(cell("A3", "sampling"))
 )
 
-# ---- one simulated market, all designs ---------------------------------------
-run_rep <- function(rep, cell, st, u0) {
-  pop <- make_population(N, cell$shares, seg = cell$seg)
-  ut <- make_utilities(pop, cell$beta, cell$beta, u0)
-  if (st$mech == "oracle") {
-    ch_m <- oracle_choice(ut$U_m, ut$out_m); ch_w <- oracle_choice(t(ut$U_w), ut$out_w)
-    men <- which(!is.na(ch_m)); wom <- which(!is.na(ch_w))
-    sides <- list(men = list(ego = men, alt = ch_m[men], edf = pop$men, adf = pop$women),
-                  women = list(ego = wom, alt = ch_w[wom], edf = pop$women, adf = pop$men))
-    pair_rate <- length(men) / N; mult <- 1; met <- N
-    endog <- mean(pop$women$group[ch_m[men]][pop$men$group[men] == 1] == 1)
-  } else {
-    sm <- search_market(ut, st$budget, st$rounds); cp <- sm$couples
-    sides <- list(men = list(ego = cp$man, alt = cp$woman, edf = pop$men, adf = pop$women),
-                  women = list(ego = cp$woman, alt = cp$man, edf = pop$women, adf = pop$men))
-    pair_rate <- nrow(cp) / N; mult <- 2; met <- mean(rowSums(sm$met))
-    endog <- mean(pop$women$group[cp$woman][pop$men$group[cp$man] == 1] == 1)
-  }
+DIAG <- paste0("diag_g", 1:3); CONST <- c("alt_g2", "alt_g3")
+
+# Fit one specification; returns long rows (term, est, se) or NA rows on failure.
+fit_spec <- function(cs, terms, spec, design, offset = FALSE) {
+  f <- tryCatch(fit_clogit(cs, terms, offset),
+                error = function(e) data.frame(term = terms, est = NA_real_, se = NA_real_))
+  cbind(spec = spec, design = design, f)
+}
+
+run_rep <- function(rep, ce, st, u0) {
+  pop <- make_population(N, ce$shares, seg = ce$seg)
+  ut <- make_utilities(pop, ce$beta, ce$beta, u0)
+  un <- form_unions(pop, ut, st)
+  s <- un$sides$men
+  dist <- if (!is.null(ce$seg)) "ln_dist" else character(0)
+  add_diag <- function(cs) { g <- s$edf$group[cs$chooser]
+    for (k in 1:3) cs[[paste0("diag_g", k)]] <- cs$same_group * (g == k); cs }
   out <- list()
-  for (sx in names(sides)) {
-    s <- sides[[sx]]
-    cs_cache <- list()
-    for (d in cell$designs) {
-      key <- paste(d$sampler, d$J)
-      if (is.null(cs_cache[[key]]))
-        cs_cache[[key]] <- if (d$sampler == "uniform")
-          build_choice_sets(s$ego, s$alt, s$edf, s$adf, d$J) else
-          build_choice_sets_strat(s$ego, s$alt, s$edf, s$adf, d$J)
-      f <- tryCatch(fit_clogit(cs_cache[[key]], d$terms, d$offset),
-                    error = function(e) data.frame(term = d$terms, est = NA, se = NA))
-      f$design <- d$design; f$ego_sex <- sx
-      f$target <- mult * cell$beta[f$term]
-      out[[length(out) + 1]] <- f
+  cs <- add_diag(build_choice_sets(s$ego, s$alt, s$edf, s$adf, 100))
+  if (ce$block != "A3") {
+    out$full <- fit_spec(cs, c(DIAG, CONST, "edu_diff", dist), "full", "uniform_J100")
+    out$noc <- fit_spec(cs, c(DIAG, "edu_diff", dist), "no_constants", "uniform_J100")
+    maj <- cs[s$edf$group[cs$chooser] == 1, ]
+    out$one <- fit_spec(maj, c(CONST, "edu_diff", dist), "one_group", "uniform_J100")
+    if (!is.null(ce$seg))
+      out$fnd <- fit_spec(cs, c(DIAG, CONST, "edu_diff"), "full_no_distance", "uniform_J100")
+    else {
+      cp <- un$couples
+      tab <- as.data.frame(table(row = factor(pop$men$group[cp$man], 1:3),
+                                 col = factor(pop$women$group[cp$woman], 1:3)))
+      for (k in 1:3) tab[[paste0("diag_g", k)]] <- as.integer(tab$row == k & tab$col == k)
+      ll <- tryCatch(coef(glm(Freq ~ row + col + diag_g1 + diag_g2 + diag_g3, family = poisson, data = tab)),
+                     error = function(e) setNames(rep(NA_real_, 3), DIAG))
+      out$ll <- data.frame(spec = "loglinear", design = "couple_table", term = DIAG,
+                           est = unname(ll[DIAG]), se = NA_real_)
     }
+  } else {
+    out$full <- fit_spec(cs, c(DIAG, CONST, "edu_diff"), "full", "uniform_J100")
+    cs30 <- add_diag(build_choice_sets(s$ego, s$alt, s$edf, s$adf, 30))
+    out$j30 <- fit_spec(cs30, c(DIAG, CONST, "edu_diff"), "full", "uniform_J30")
+    cst <- add_diag(build_choice_sets_strat(s$ego, s$alt, s$edf, s$adf, 100, 50))
+    out$so <- fit_spec(cst, c(DIAG, CONST, "edu_diff"), "full", "strat_offset", offset = TRUE)
+    out$sn <- fit_spec(cst, c(DIAG, CONST, "edu_diff"), "full", "strat_no_offset")
   }
   r <- do.call(rbind, out)
-  r$rep <- rep; r$pair_rate <- pair_rate; r$endog_maj <- endog; r$mean_met <- met
+  r$rep <- rep; r$pair_rate <- un$pair_rate; r$mean_met <- un$mean_met
+  r$n_g3_egos <- sum(s$edf$group[s$ego] == 3)
   r
 }
 
-# ---- main loop -----------------------------------------------------------------
 dir.create(OUT, showWarnings = FALSE, recursive = TRUE)
-cl <- makeCluster(N_WORKERS)
-invisible(clusterEvalQ(cl, { source("R/population.R"); source("R/matching.R"); source("R/estimate.R"); NULL }))
-clusterExport(cl, c("N", "run_rep"))
-t0 <- Sys.time(); results <- list(); idx <- 0
-for (ci in seq_along(CELLS)) {
-  cell <- CELLS[[ci]]
-  for (sn in names(SETTINGS)) {
-    idx <- idx + 1
-    st <- SETTINGS[[sn]]
-    u0 <- -Inf
-    if (st$mech == "da") {
-      mk <- function(u) make_utilities(make_population(N, cell$shares, seg = cell$seg),
-                                       cell$beta, cell$beta, u)
-      u0 <- calibrate_u0(mk, st$budget, st$rounds, TARGET_PAIR)
-    }
-    clusterSetRNGStream(cl, SEED + idx)
-    reps <- parLapply(cl, seq_len(REPS), run_rep, cell = cell, st = st, u0 = u0)
-    r <- do.call(rbind, reps)
-    r$block <- cell$block; r$cell <- cell$label; r$setting <- sn; r$u0 <- u0
-    r$commit <- COMMIT; r$seed <- SEED + idx
-    results[[idx]] <- r
-    all <- do.call(rbind, results)
-    for (b in unique(all$block))
-      write.csv(all[all$block == b, ], file.path(OUT, paste0(b, ".csv")), row.names = FALSE)
-    cat(sprintf("[%5.1f min] done %s | %s | %s (u0 = %.2f, pairing %.2f)\n",
-                as.numeric(difftime(Sys.time(), t0, units = "mins")),
-                cell$block, cell$label, sn, u0, mean(r$pair_rate)))
-  }
+clu <- makeCluster(N_WORKERS)
+invisible(clusterEvalQ(clu, { for (f in c("population", "matching", "estimate", "run_helpers"))
+  source(file.path("R", paste0(f, ".R"))); NULL }))
+clusterExport(clu, c("N", "DIAG", "CONST", "fit_spec", "run_rep"))
+t0 <- Sys.time(); res <- list(); idx <- 0
+for (ce in CELLS) for (sn in c("oracle", "gs", "seq")) {
+  idx <- idx + 1; st <- SETTINGS[[sn]]
+  u0 <- setting_u0(st, function(u)
+    make_utilities(make_population(N, ce$shares, seg = ce$seg), ce$beta, ce$beta, u))
+  clusterSetRNGStream(clu, SEED + idx)
+  r <- do.call(rbind, parLapply(clu, seq_len(REPS), run_rep, ce = ce, st = st, u0 = u0))
+  r$block <- ce$block; r$cell <- ce$label; r$setting <- sn; r$u0 <- u0
+  r$commit <- COMMIT; r$seed <- SEED + idx
+  res[[idx]] <- r
+  all <- do.call(rbind, res)
+  for (b in unique(all$block))
+    write.csv(all[all$block == b, ], file.path(OUT, paste0("v2_", b, ".csv")), row.names = FALSE)
+  f <- r[r$spec == "full" & r$design == "uniform_J100" & r$term %in% DIAG, ]
+  cat(sprintf("[%5.1f min] done %s | %s | %s  full diag means: %s\n",
+              as.numeric(difftime(Sys.time(), t0, units = "mins")), ce$block, ce$label, sn,
+              paste(sprintf("%.2f", tapply(f$est, f$term, mean, na.rm = TRUE)), collapse = " / ")))
 }
-stopCluster(cl)
+stopCluster(clu)
 cat("Done.\n")
