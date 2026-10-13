@@ -5,11 +5,10 @@ module's `REPORT.md`.
 
 ## The setup
 
-- A stylised market: 1,000 men and 1,000 women, three groups, continuous
+- A stylised market: 1,000 men and 1,000 women, two groups, continuous
   education, fixed tastes.
 - Partners are formed either one-sidedly, which is what conditional logit
-  assumes, or two-sidedly (Gale-Shapley, or sequential search with
-  deferred acceptance).
+  assumes, or two-sidedly (Gale-Shapley: both must agree).
 - The model is then fitted the way the dissertation's papers fit it.
 - The one-sided runs recover the true tastes in every module. That checks
   the code. Everything below is about what two-sidedness does.
@@ -73,14 +72,19 @@ setting coefficient** (Module C).
 
 - It is a toy. It shows that these mechanisms exist and roughly how large
   they can be. It does not show how large they are in Sweden.
-- The partnering rule is stable matching among the people one meets.
-  Meetings are random with respect to space and institutions, so space and
-  institutions enter through tastes only.
+- The two-sided rule is Gale-Shapley with everyone meeting everyone, plus
+  an outside option (85% pair). Search frictions lower the scale of every
+  coefficient (Module A validation); they are not varied in the main tests.
+- Space and settings enter through tastes, not through who meets whom.
 - The papers' main descriptive conclusions survive:
   - composition drives the rise in exogamy;
   - propinquity explains a minority of endogamy;
   - education sorting is strong.
 
-  What needs care is the interpretation of coefficients as tastes, of sex
-  differences, of status vs homophily, and above all of Paper 3's
-  coefficient component as a change in assortativity.
+  What needs care:
+  - reading coefficients as individual tastes;
+  - sex differences;
+  - status vs homophily;
+  - setting coefficients under selection into settings;
+  - any comparison across groups or over time made without alter-group
+    constants on the whole couple table.
