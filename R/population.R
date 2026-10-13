@@ -15,8 +15,18 @@ GROUP_CENTRES <- rbind(c(0.25, 0.25), c(0.75, 0.25), c(0.5, 0.75),
 
 # shares_w / edu_shift_w let the women's side differ from the men's (Module
 # B). By default both sexes are drawn the same way.
+# layout / s (Module A v3, two groups): residential layouts on the unit square.
+#   "mixed"    everyone uniform
+#   "sides"    with probability s a person lives on their group's own side:
+#              the majority on x in [0, share_majority], the minority on the
+#              rest, so both groups have the same density when fully separated
+#   "enclaves" the minority, with probability s, lives in one of 3 small
+#              clusters (sd 0.05); the majority, with probability s, avoids
+#              the clusters (radius 0.15). Same centres for both sexes.
+#   Otherwise (probability 1 - s) a person lives anywhere.
 make_population <- function(N, shares = c(0.7, 0.2, 0.1), edu_sd = 1,
-                            seg = NULL, shares_w = shares, edu_shift_w = 0) {
+                            seg = NULL, shares_w = shares, edu_shift_w = 0,
+                            layout = NULL, s = 0) {
   draw_side <- function(sh, shift = 0) {
     sizes <- round(N * sh)
     sizes[1] <- N - sum(sizes[-1])
@@ -31,7 +41,34 @@ make_population <- function(N, shares = c(0.7, 0.2, 0.1), edu_sd = 1,
     }
     d
   }
-  list(men = draw_side(shares), women = draw_side(shares_w, edu_shift_w))
+  pop <- list(men = draw_side(shares), women = draw_side(shares_w, edu_shift_w))
+  if (!is.null(layout)) pop <- place_two_groups(pop, layout, s, shares[1])
+  pop
+}
+
+ENCLAVES <- rbind(c(0.25, 0.70), c(0.70, 0.75), c(0.55, 0.25))
+
+place_two_groups <- function(pop, layout, s, share_majority) {
+  place <- function(d) {
+    n <- nrow(d); x <- runif(n); y <- runif(n)
+    own <- runif(n) < s
+    if (layout == "sides") {
+      maj <- d$group == 1
+      x[own & maj] <- runif(sum(own & maj), 0, share_majority)
+      x[own & !maj] <- runif(sum(own & !maj), share_majority, 1)
+    } else if (layout == "enclaves") {
+      mi <- which(own & d$group == 2)
+      k <- sample.int(nrow(ENCLAVES), length(mi), replace = TRUE)
+      x[mi] <- pmin(pmax(rnorm(length(mi), ENCLAVES[k, 1], 0.05), 0), 1)
+      y[mi] <- pmin(pmax(rnorm(length(mi), ENCLAVES[k, 2], 0.05), 0), 1)
+      ma <- which(own & d$group == 1)
+      near <- function(i) any(sqrt((x[i] - ENCLAVES[, 1])^2 + (y[i] - ENCLAVES[, 2])^2) < 0.15)
+      for (i in ma) for (t in 1:50) { if (!near(i)) break; x[i] <- runif(1); y[i] <- runif(1) }
+    }
+    d$x <- x; d$y <- y
+    d
+  }
+  list(men = place(pop$men), women = place(pop$women))
 }
 
 # Institutions (Module C). K institutions, each with an education level c_k

@@ -1,86 +1,118 @@
-# Module A (version 2): does a well-specified conditional logit do what it aims to do?
+# Module A (version 3): four minimal tests of a well-specified conditional logit
 
-**Status:** spec, 2026-10-13, written before the runs. Version 1 is in
-`v1/`, and its README says why it was replaced.
+**Status:** spec, 2026-10-14, written before the runs. Earlier versions are
+in `v1/` and `v2/`. This version also absorbs Module B (sex differences;
+status vs homophily).
 
-## The claim
+## The toy
 
-> A well-specified conditional logit recovers ancestry assortativity free of
-> group size, residential segregation and choice-set sampling.
->
-> **Well-specified** means:
-> - egos from every group are pooled;
-> - each ego group gets its own same-group term;
-> - each alter group gets a constant;
-> - education (and distance, when there is space) is included.
->
-> This is the logit form of a log-linear model of the couple table.
->
-> - Under one-sided choice it recovers the true taste.
-> - Under two-sided matching it recovers the pair-level assortativity, up
->   to a scale set by search frictions (`VALIDATION.md`).
+- 1,000 men and 1,000 women. Two groups: a majority and a minority (20%
+  unless a test varies it). One continuous education score, N(0, 1).
+- Tastes, identical for everyone unless a test varies them:
+  +1 x same group - 1 x abs(edu difference).
+- **Two settings:**
+  - **one-sided:** each person picks freely. This is what the logit
+    assumes; it is the benchmark.
+  - **two-sided:** Gale-Shapley, men proposing. Everyone meets everyone;
+    both partners must prefer the union to staying single. The outside
+    option is calibrated so 85% pair up.
+- **Estimation:**
+  - 100 alternatives sampled uniformly from the other sex;
+  - one conditional logit, men as egos (both sexes in test 3);
+  - egos from both groups pooled.
+- **The well-specified model:**
 
-## Setup (unchanged from version 1)
+      same group + minority-alter constant + abs(edu difference)
 
-- 1,000 men and 1,000 women; three groups; continuous education.
-- Utility: 1 x same group - 1 x abs(edu difference) (- 0.5 x ln distance in
-  A2). Identical for both sexes and all groups.
-- Settings:
-  - `oracle` (one-sided);
-  - `gs` (Gale-Shapley, everyone meets everyone);
-  - `seq` (sequential search, budget 50).
-  Both two-sided settings use 85% pairing.
-- Men as egos. Version 1 showed women's estimates match men's in this
-  symmetric design.
-- 100 uniformly sampled alternatives.
-- 200 replications per cell.
+  plus one term per test.
+- With two groups the couple table has one degree of association, so there
+  is one same-group coefficient (half the couple-table log odds ratio). The
+  minority-alter constant is the column margin: how attainable minority
+  partners are.
 
-## Specifications fitted to every simulated market
+**Targets.**
+- One-sided: the true taste.
+- Two-sided: the pair surplus, the sum of both sides' terms (2 for same
+  group and education). It is recovered up to a scale near 0.95 when
+  everyone meets everyone (Module A v2).
+- rho = estimate / target.
 
-| Name | Model | Role |
-|---|---|---|
-| `full` | same group x ego group (3 terms) + alter-group constants + education (+ distance) | **The test** |
-| `no_constants` | same as `full` without alter-group constants | Demonstration: what goes wrong without the column margin |
-| `one_group` | majority egos only, alter-group dummies + education (+ distance) | Demonstration: Paper 3's design |
-| `loglinear` | Poisson on the 3 x 3 couple table: rows + columns + group diagonals | Reference (A0 and A1 only; it cannot hold distance or sampling) |
+**Replications:** 200 per cell.
 
-## Blocks
+## Test 1: Group size
 
-| Block | Varies |
-|---|---|
-| A0 | Baseline: 70/20/10, no space, J = 100 |
-| A1 | Group shares 33/33/33, 85/10/5, 90/8/2 |
-| A2 | Segregation 0, 0.5, 0.9 (space; `full` with and without distance) |
-| A3 | J = 30; stratified sampling (50 of 100 from the ego's own group), with and without the offset (`full` only) |
+- **World:** minority share 50%, 20%, 5%.
+- **Models:** well-specified vs **without** the minority-alter constant.
+- **Claim:** with the constant, same-group rho does not depend on group
+  size, under either setting. Without it, two-sided rho drifts.
+- **Pass:** the well-specified rho at 20% and 5% is within max(0.05,
+  2.5 MCSE) of its value at 50%. One-sided rho is within that bound of 1.
 
-## Pass criteria for `full`
+## Test 2: Segregation
 
-rho = estimate / target. The target is 1 under oracle and 2 (the pair
-surplus) under two-sided matching.
+- **World:** propinquity added to tastes (-0.5 x ln distance, both sides).
+  Five layouts, plotted in `results/layouts.pdf`:
+  - mixed;
+  - two sides, moderate and strong: each group mostly on its own side, the
+    side's width proportional to the group's share;
+  - enclaves, moderate and strong: the minority mostly in three small
+    clusters, the majority mostly avoiding them.
 
-1. **Oracle:** every same-group term and education have abs(rho - 1) < 0.02.
-2. **Two-sided:**
-   - the three groups' same-group rhos are equal within 0.05;
-   - each stays within 0.05 of its A0 value across A1 to A3.
-   - The very small group in 90/8/2 (20 men) is reported but not held to
-     this, since its estimate is too noisy.
-3. **Two-sided, A0 and A1:** `full` agrees with `loglinear` within 0.05.
+  The moderate and strong levels reach similar exposure and dissimilarity
+  in both layouts (`results/layouts_stats.csv`).
+- **Models:** well-specified + ln(distance), vs well-specified without it.
+- **Claim:**
+  - with distance, same-group and distance are recovered (one-sided) or
+    close to it (two-sided);
+  - without distance, the same-group term absorbs propinquity, more so the
+    stronger the segregation.
+- **Pass (with distance):**
+  - one-sided: same-group rho within the bound of 1;
+  - two-sided: within max(0.05, 2.5 MCSE) of the mixed layout.
+  - Module A v2 found a shift of about 0.1 under heavy segregation. If it
+    recurs, it is reported as a limit.
 
-**Amendment (2026-10-13, after the 3-rep smoke test, before any production
-results):**
-- Each check passes if the deviation is within its tolerance (0.02 or
-  0.05) **or** within 2.5 Monte Carlo standard errors, whichever is larger.
-- Reason: the alter-group constants make the small groups' terms noisier.
-  A fixed 0.02 bound would fail on simulation noise alone.
-- The log-linear agreement check keeps a fixed 0.05: both models are fitted
-  to the same markets, so their difference has little noise.
+## Test 3: Sex differences
 
-Expected to fail, and reported as demonstrations:
-- `no_constants` and `one_group` under two-sided matching;
-- `full` without distance in A2;
-- stratified sampling without the offset in A3.
+- **Worlds:**
+
+  | World | Men's same-group taste | Women's same-group taste |
+  |---|---|---|
+  | only men care | 2 | 0 |
+  | only women care | 0 | 2 |
+  | both care | 1 | 1 |
+  | sex ratio | 1 | 1 |
+
+  - The first three worlds have the same pair surplus.
+  - In the sex-ratio world the minority is 60% male: 24% of men and 16% of
+    women are minority.
+- **Model:** well-specified, fitted separately for men and for women.
+- **Claim:**
+  - one-sided recovers each sex's own taste;
+  - two-sided gives the same estimate for men and women in the first three
+    worlds, so the data cannot say who holds the taste.
+  - The sex-ratio world tests whether the minority-alter constant also
+    removes the sex gap that version 1 found without it.
+
+## Test 4: Status vs homophily
+
+- **Worlds:**
+
+  | World | Education part of tastes |
+  |---|---|
+  | homophily | -1 x abs(edu difference) |
+  | status | +2 x partner's education |
+  | both | both terms |
+
+- **Model:** well-specified + partner's education.
+- **Claim:**
+  - one-sided separates the two;
+  - two-sided: the partner's-education coefficient shrinks toward zero,
+    and the sorting that status competition produces is read as homophily.
 
 ## Outputs
 
-`results/v2_A0.csv` to `v2_A3.csv`, `REPORT.md` and one figure. The report leads with
-`full`. The demonstrations get one short section.
+- `results/layouts.pdf`
+- `results/test1.csv` to `test4.csv`
+- one figure per test
+- `REPORT.md`: one table and one sentence per test.

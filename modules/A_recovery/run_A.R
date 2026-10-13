@@ -1,100 +1,114 @@
 # =============================================================================
-# Module A (version 2) production run. See SPEC.md.
+# Module A (version 3): four minimal tests. See SPEC.md.
 # Run from the repo root:  Rscript modules/A_recovery/run_A.R
-# Every simulated market is fitted with several specifications; men as egos.
+# Two groups; one-sided (oracle) vs two-sided (Gale-Shapley, 85% pairing).
 # =============================================================================
 
 library(parallel)
 for (f in c("population", "matching", "estimate", "run_helpers")) source(file.path("R", paste0(f, ".R")))
-REPS <- 200; SEED <- 20261110; N <- 1000
+REPS <- 200; SEED <- 20261140; N <- 1000
 N_WORKERS <- max(1, detectCores() - 2)
 COMMIT <- system("git rev-parse --short HEAD", intern = TRUE)
 OUT <- "modules/A_recovery/results"
-B2 <- c(same_group = 1, edu_diff = -1)
-B3 <- c(B2, ln_dist = -0.5)
 
-cell <- function(block, label, shares = c(0.7, 0.2, 0.1), seg = NULL, beta = B2)
-  list(block = block, label = label, shares = shares, seg = seg, beta = beta)
+WS <- c("same_group", "alt_g2", "edu_diff")           # the well-specified model
+tastes <- function(sg = 1, edu = -1, dist = NULL, status = NULL) {
+  b <- c(same_group = sg)
+  if (!is.null(edu)) b <- c(b, edu_diff = edu)
+  if (!is.null(dist)) b <- c(b, ln_dist = dist)
+  if (!is.null(status)) b <- c(b, alt_edu = status)
+  b
+}
+cell <- function(test, world, models, pop = list(), bm = tastes(), bw = bm, sexes = "men")
+  list(test = test, world = world, models = models, pop = pop, bm = bm, bw = bw, sexes = sexes)
+
 CELLS <- c(
-  list(cell("A0", "70/20/10")),
-  lapply(list(c(1, 1, 1) / 3, c(.85, .10, .05), c(.90, .08, .02)), function(sh)
-    cell("A1", paste(round(100 * sh), collapse = "/"), shares = sh)),
-  lapply(c(0, 0.5, 0.9), function(sg) cell("A2", paste("segregation", sg), seg = sg, beta = B3)),
-  list(cell("A3", "sampling"))
+  # Test 1: group size
+  lapply(c(0.50, 0.20, 0.05), function(p)
+    cell("test1", sprintf("minority %d%%", round(100 * p)),
+         list(well_specified = WS, no_constant = c("same_group", "edu_diff")),
+         pop = list(shares = c(1 - p, p)))),
+  # Test 2: segregation
+  lapply(list(c("mixed", 0), c("sides", 0.5), c("sides", 0.9), c("enclaves", 0.5), c("enclaves", 0.9)), function(l)
+    cell("test2", if (l[1] == "mixed") "mixed" else paste(l[1], ifelse(l[2] == "0.5", "moderate", "strong")),
+         list(with_distance = c(WS, "ln_dist"), without_distance = WS),
+         pop = list(shares = c(0.8, 0.2), layout = l[1], s = as.numeric(l[2])),
+         bm = tastes(dist = -0.5))),
+  # Test 3: sex differences
+  list(cell("test3", "only men care",   list(well_specified = WS), pop = list(shares = c(.8, .2)),
+            bm = tastes(sg = 2), bw = tastes(sg = 0), sexes = c("men", "women")),
+       cell("test3", "only women care", list(well_specified = WS), pop = list(shares = c(.8, .2)),
+            bm = tastes(sg = 0), bw = tastes(sg = 2), sexes = c("men", "women")),
+       cell("test3", "both care",       list(well_specified = WS), pop = list(shares = c(.8, .2)),
+            sexes = c("men", "women")),
+       cell("test3", "sex ratio",       list(well_specified = WS),
+            pop = list(shares = c(.76, .24), shares_w = c(.84, .16)), sexes = c("men", "women"))),
+  # Test 4: status vs homophily
+  list(cell("test4", "homophily", list(well_specified = c(WS, "alt_edu")), pop = list(shares = c(.8, .2))),
+       cell("test4", "status",    list(well_specified = c(WS, "alt_edu")), pop = list(shares = c(.8, .2)),
+            bm = tastes(edu = NULL, status = 2)),
+       cell("test4", "both",      list(well_specified = c(WS, "alt_edu")), pop = list(shares = c(.8, .2)),
+            bm = tastes(status = 2)))
 )
 
-DIAG <- paste0("diag_g", 1:3); CONST <- c("alt_g2", "alt_g3")
-
-# Fit one specification; returns long rows (term, est, se) or NA rows on failure.
-fit_spec <- function(cs, terms, spec, design, offset = FALSE) {
-  f <- tryCatch(fit_clogit(cs, terms, offset),
-                error = function(e) data.frame(term = terms, est = NA_real_, se = NA_real_))
-  cbind(spec = spec, design = design, f)
-}
-
 run_rep <- function(rep, ce, st, u0) {
-  pop <- make_population(N, ce$shares, seg = ce$seg)
-  ut <- make_utilities(pop, ce$beta, ce$beta, u0)
+  pop <- do.call(make_population, c(list(N = N), ce$pop))
+  ut <- make_utilities(pop, ce$bm, ce$bw, u0)
   un <- form_unions(pop, ut, st)
-  s <- un$sides$men
-  dist <- if (!is.null(ce$seg)) "ln_dist" else character(0)
-  add_diag <- function(cs) { g <- s$edf$group[cs$chooser]
-    for (k in 1:3) cs[[paste0("diag_g", k)]] <- cs$same_group * (g == k); cs }
   out <- list()
-  cs <- add_diag(build_choice_sets(s$ego, s$alt, s$edf, s$adf, 100))
-  if (ce$block != "A3") {
-    out$full <- fit_spec(cs, c(DIAG, CONST, "edu_diff", dist), "full", "uniform_J100")
-    out$noc <- fit_spec(cs, c(DIAG, "edu_diff", dist), "no_constants", "uniform_J100")
-    maj <- cs[s$edf$group[cs$chooser] == 1, ]
-    out$one <- fit_spec(maj, c(CONST, "edu_diff", dist), "one_group", "uniform_J100")
-    if (!is.null(ce$seg))
-      out$fnd <- fit_spec(cs, c(DIAG, CONST, "edu_diff"), "full_no_distance", "uniform_J100")
-    else {
-      cp <- un$couples
-      tab <- as.data.frame(table(row = factor(pop$men$group[cp$man], 1:3),
-                                 col = factor(pop$women$group[cp$woman], 1:3)))
-      for (k in 1:3) tab[[paste0("diag_g", k)]] <- as.integer(tab$row == k & tab$col == k)
-      ll <- tryCatch(coef(glm(Freq ~ row + col + diag_g1 + diag_g2 + diag_g3, family = poisson, data = tab)),
-                     error = function(e) setNames(rep(NA_real_, 3), DIAG))
-      out$ll <- data.frame(spec = "loglinear", design = "couple_table", term = DIAG,
-                           est = unname(ll[DIAG]), se = NA_real_)
+  for (sx in ce$sexes) {
+    s <- un$sides[[sx]]
+    cs <- build_choice_sets(s$ego, s$alt, s$edf, s$adf, 100)
+    for (m in names(ce$models)) {
+      f <- tryCatch(fit_clogit(cs, ce$models[[m]]),
+                    error = function(e) data.frame(term = ce$models[[m]], est = NA_real_, se = NA_real_))
+      f$model <- m; f$ego_sex <- sx
+      out[[length(out) + 1]] <- f
     }
-  } else {
-    out$full <- fit_spec(cs, c(DIAG, CONST, "edu_diff"), "full", "uniform_J100")
-    cs30 <- add_diag(build_choice_sets(s$ego, s$alt, s$edf, s$adf, 30))
-    out$j30 <- fit_spec(cs30, c(DIAG, CONST, "edu_diff"), "full", "uniform_J30")
-    cst <- add_diag(build_choice_sets_strat(s$ego, s$alt, s$edf, s$adf, 100, 50))
-    out$so <- fit_spec(cst, c(DIAG, CONST, "edu_diff"), "full", "strat_offset", offset = TRUE)
-    out$sn <- fit_spec(cst, c(DIAG, CONST, "edu_diff"), "full", "strat_no_offset")
   }
   r <- do.call(rbind, out)
-  r$rep <- rep; r$pair_rate <- un$pair_rate; r$mean_met <- un$mean_met
-  r$n_g3_egos <- sum(s$edf$group[s$ego] == 3)
+  r$rep <- rep; r$pair_rate <- un$pair_rate
+  cp <- un$couples
+  r$edu_cor <- cor(pop$men$edu[cp$man], pop$women$edu[cp$woman])
   r
+}
+
+# true values: own taste (one-sided) and pair surplus (two-sided). For the
+# partner's-education term the pair surplus seen from an ego is the ego's own
+# status taste (the partner's taste for the ego's education does not vary
+# across the ego's alternatives). The minority-alter constant has true value 0
+# one-sided; it has no two-sided target.
+truth <- function(ce, sx, term, setting) {
+  own <- if (sx == "men") ce$bm else ce$bw; oth <- if (sx == "men") ce$bw else ce$bm
+  g <- function(b) if (term %in% names(b)) b[[term]] else 0
+  if (term == "alt_g2") return(if (setting == "oracle") 0 else NA)
+  if (setting == "oracle" || term == "alt_edu") g(own) else g(own) + g(oth)
 }
 
 dir.create(OUT, showWarnings = FALSE, recursive = TRUE)
 clu <- makeCluster(N_WORKERS)
 invisible(clusterEvalQ(clu, { for (f in c("population", "matching", "estimate", "run_helpers"))
   source(file.path("R", paste0(f, ".R"))); NULL }))
-clusterExport(clu, c("N", "DIAG", "CONST", "fit_spec", "run_rep"))
+clusterExport(clu, c("N", "run_rep"))
 t0 <- Sys.time(); res <- list(); idx <- 0
-for (ce in CELLS) for (sn in c("oracle", "gs", "seq")) {
+for (ce in CELLS) for (sn in c("oracle", "gs")) {
   idx <- idx + 1; st <- SETTINGS[[sn]]
   u0 <- setting_u0(st, function(u)
-    make_utilities(make_population(N, ce$shares, seg = ce$seg), ce$beta, ce$beta, u))
+    make_utilities(do.call(make_population, c(list(N = N), ce$pop)), ce$bm, ce$bw, u))
   clusterSetRNGStream(clu, SEED + idx)
   r <- do.call(rbind, parLapply(clu, seq_len(REPS), run_rep, ce = ce, st = st, u0 = u0))
-  r$block <- ce$block; r$cell <- ce$label; r$setting <- sn; r$u0 <- u0
+  r$test <- ce$test; r$world <- ce$world; r$setting <- sn; r$u0 <- u0
+  r$truth <- mapply(function(sx, tm) truth(ce, sx, tm, sn), r$ego_sex, r$term)
   r$commit <- COMMIT; r$seed <- SEED + idx
   res[[idx]] <- r
   all <- do.call(rbind, res)
-  for (b in unique(all$block))
-    write.csv(all[all$block == b, ], file.path(OUT, paste0("v2_", b, ".csv")), row.names = FALSE)
-  f <- r[r$spec == "full" & r$design == "uniform_J100" & r$term %in% DIAG, ]
-  cat(sprintf("[%5.1f min] done %s | %s | %s  full diag means: %s\n",
-              as.numeric(difftime(Sys.time(), t0, units = "mins")), ce$block, ce$label, sn,
-              paste(sprintf("%.2f", tapply(f$est, f$term, mean, na.rm = TRUE)), collapse = " / ")))
+  for (tt in unique(all$test))
+    write.csv(all[all$test == tt, ], file.path(OUT, paste0(tt, ".csv")), row.names = FALSE)
+  sg <- r[r$term == "same_group" & r$model == names(ce$models)[1], ]
+  cat(sprintf("[%5.1f min] done %s | %s | %s: same_group %s (truth %s)\n",
+              as.numeric(difftime(Sys.time(), t0, units = "mins")), ce$test, ce$world, sn,
+              paste(sprintf("%.2f", tapply(sg$est, sg$ego_sex, mean, na.rm = TRUE)), collapse = "/"),
+              paste(unique(sg$truth), collapse = "/")))
 }
 stopCluster(clu)
 cat("Done.\n")
