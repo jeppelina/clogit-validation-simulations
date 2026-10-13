@@ -1,0 +1,29 @@
+"test","check","value","bound","pass"
+"test1","one_sided minority 20% vs minority 50%",0.00869432795153324,0.05,TRUE
+"test1","one_sided minority 5% vs minority 50%",-0.000760753234250511,0.05,TRUE
+"test1","two_sided minority 20% vs minority 50%",-0.000332322718306077,0.05,TRUE
+"test1","two_sided minority 5% vs minority 50%",-0.000700946385698398,0.05,TRUE
+"test1","one_sided minority 20% vs truth",0.00875825287902443,0.05,TRUE
+"test1","one_sided minority 5% vs truth",-0.000696828306759323,0.05,TRUE
+"test1","one_sided minority 50% vs truth",6.3924927491188e-05,0.05,TRUE
+"test2","one_sided enclaves moderate vs truth",0.000811017090299293,0.05,TRUE
+"test2","one_sided enclaves strong vs truth",0.00655904598026091,0.05,TRUE
+"test2","one_sided mixed vs truth",0.00147379043453877,0.05,TRUE
+"test2","one_sided sides moderate vs truth",0.00624877712776528,0.05,TRUE
+"test2","one_sided sides strong vs truth",0.00831192409562953,0.05,TRUE
+"test2","two_sided enclaves moderate vs mixed",0.00307323915710034,0.05,TRUE
+"test2","two_sided enclaves strong vs mixed",0.0166674059834454,0.05,TRUE
+"test2","two_sided sides moderate vs mixed",-0.00330574395543104,0.05,TRUE
+"test2","two_sided sides strong vs mixed",0.00105098885238197,0.05,TRUE
+"test3","one_sided both care men vs own taste",0.0148897534614572,0.05,TRUE
+"test3","one_sided both care women vs own taste",0.0060827015198055,0.05,TRUE
+"test3","two_sided both care men minus women",-0.00083175235796773,0.05,TRUE
+"test3","one_sided only men care men vs own taste",0.00255813137703376,0.05,TRUE
+"test3","one_sided only men care women vs own taste",-0.0123552744104794,0.05,TRUE
+"test3","two_sided only men care men minus women",-0.000202736907217282,0.05,TRUE
+"test3","one_sided only women care men vs own taste",0.000904632070031404,0.05,TRUE
+"test3","one_sided only women care women vs own taste",0.0310559541784028,0.05,TRUE
+"test3","two_sided only women care men minus women",-5.74952922198779e-05,0.05,TRUE
+"test3","one_sided sex ratio men vs own taste",0.00601037566342089,0.05,TRUE
+"test3","one_sided sex ratio women vs own taste",0.0101834504755294,0.05,TRUE
+"test3","two_sided sex ratio men minus women",-0.00122399269450879,0.05,TRUE

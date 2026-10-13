@@ -1,7 +1,0 @@
-done C1_placebo_coarse | oracle: coarse share 0.083, continuous share -0.000
-done C1_placebo_coarse | gs: coarse share 0.084, continuous share 0.004
-done C1_placebo_coarse | seq: coarse share 0.082, continuous share 0.005
-done C2_channel_coarse | oracle: coarse share 0.524, continuous share 0.225
-done C2_channel_coarse | gs: coarse share 0.714, continuous share 0.270
-done C2_channel_coarse | seq: coarse share 0.499, continuous share 0.205
-Done.

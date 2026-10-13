@@ -1,19 +1,4 @@
-# macOS
 .DS_Store
-
-# Large R objects
+.Rhistory
+.RData
 *.rds
-
-# Internal development notes
-CLAUDE.md
-
-# LaTeX supplement for the first-generation modules (maintained separately, stale)
-Simulation_Supplement/
-
-# First-generation archive: files that were untracked before the 2026-10 move
-archive/2026_first_generation/WRITING_PLAN.md
-archive/2026_first_generation/sim_log.txt
-archive/2026_first_generation/module5_boundary_matrix/results/module5_interpretation.md
-archive/2026_first_generation/module5_boundary_matrix/results/module5_validation.log
-archive/2026_first_generation/results/*_summary.md
-archive/2026_first_generation/results/full_results_report.md

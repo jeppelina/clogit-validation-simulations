@@ -1,91 +1,110 @@
-# What a one-sided choice model sees in a two-sided partner market
+# What does a conditional logit of partner choice estimate when both partners have to agree?
 
-Monte Carlo simulations accompanying the doctoral dissertation of Jesper
-Lindmarker (Institute for Analytical Sociology, Linköping University). The
-dissertation's papers estimate conditional logit models of partner choice
-from Swedish register data. This repository asks what those models recover
-when the partner market works the way partner markets do: both people have
-to agree.
+Monte Carlo simulations of conditional logit models of partner choice, the
+workhorse of register-based research on assortative mating. The model treats
+partner choice as one-sided: each person picks a partner from a set of
+alternatives. Real unions are two-sided: both people have to agree. These
+simulations generate partner markets with known tastes, form unions in both
+ways, and check what the model recovers.
 
-**Work in progress.** The October 2026 revision is described here. The
-earlier simulations (March to September 2026) are in
-`archive/2026_first_generation/`, with a README explaining what they did
-and why they were replaced.
+## TL;DR
 
-## The model, in one paragraph
+**A. A well-specified model does what it should, up to a point.**
+- A conditional logit with **alter-group constants** recovers same-group
+  assortativity regardless of **group size**, and regardless of
+  **residential segregation** as long as **ln(distance)** is in the model.
+- Under two-sided matching it estimates the **pair's** assortativity, both
+  partners' tastes combined, at a stable scale. That is the quantity a
+  log-linear model of the couple table measures.
+- **It cannot:**
+  - say **which sex** holds a taste: models for men and for women give the
+    same estimate whether only men, only women, or both care;
+  - see **status preferences**: a taste for a more educated partner shows
+    up at about a tenth of its size, and the sorting it produces is read as
+    homophily.
+- **Without the alter-group constant**, small groups' assortativity is
+  underestimated by about 15% for a 5% minority. **Without distance**, propinquity
+  is read as endogamy (up to +26%).
 
-A market of 1,000 men and 1,000 women in three ancestry groups, each person
-with a continuous education score (and in some modules a location or an
-institution). Everyone values a partner by a few pair characteristics (same
-group, education difference, distance) plus a random taste drawn once and
-held fixed. Partners are formed in one of three ways:
+**B. In a mediation analysis, unobserved confounding lands on the setting.**
+- If an unobserved trait drives both who ends up in a setting (a workplace,
+  say) and whom people choose, the **setting's coefficient** is inflated. A
+  setting with no effect gets a clearly positive one.
+- The **direct homogamy** coefficient moves by at most about 10%.
+- The **mediation share** is inflated by 2 to 5 points: a large error when
+  the setting's real role is small.
 
-- **One-sided choice (`oracle`).** Everyone picks freely, and the chosen
-  person has no say. This is exactly what conditional logit assumes, so it
-  is the benchmark.
-- **Gale-Shapley (`gs`).** Everyone meets everyone, both must prefer the
-  match to staying single, and people compete for partners until no two
-  would rather be together.
-- **Sequential search (`seq`).** People who are still single meet a few new
-  people each round, about 17 in all before pairing. The market clears among
-  those who have met.
+**C. Over time, the well-specified model separates assortativity from
+composition.**
+- As a minority grows from 10% to 30%, the part of a decomposition
+  attributed to assortativity is about zero when tastes are constant.
+- It tracks real hardening or softening within 8%.
+- The alter-group constant absorbs the market's own adjustment to the new
+  composition.
 
-In both two-sided settings the value of staying single is calibrated so
-that 85% pair up. The researcher then does what the papers do: takes each
-partnered person, samples 99 alternatives from the opposite sex, and fits a
-conditional logit.
+## The setup in brief
 
-## Modules
+- **Market:**
+  - 1,000 men and 1,000 women;
+  - a majority and a minority group;
+  - education ~ N(0, 1);
+  - in some tests, locations, settings, or an unobserved trait.
+- **Tastes:** a linear utility in pair characteristics (same group,
+  |education difference|, ...) plus a random taste for each pair, drawn
+  once.
+- **Unions, formed in two ways:**
+  - **One-sided choice:** each person picks their best option. This is the
+    process the conditional logit assumes, and the benchmark.
+  - **Two-sided matching (Gale-Shapley):** men propose, women hold the best
+    offer, and nobody accepts a partner worse than staying single. The
+    value of staying single is set so that 85% pair up.
+- **Estimation, as in register studies:**
+  - each partnered person's choice set is their partner plus 99 people of
+    the other sex drawn at random;
+  - one conditional logit with egos from all groups;
+  - the **well-specified** model has a same-group term, a constant for the
+    alternative being from the minority, and |education difference| (plus
+    terms specific to each study).
+- 200 simulated markets per cell.
 
-| Module | One question | Bears on |
-|---|---|---|
-| [A Recovery](modules/A_recovery) | Does the model recover its target under unequal groups, segregation and sampled choice sets? | All papers |
-| [B Two-sided](modules/B_two_sided) | What can two-sided data not tell us: which sex holds a taste, and homophily vs status? | Papers 1, 4 |
-| [C Mediation](modules/C_mediation) | Are KHB mediation shares trustworthy? | Papers 1, 4 |
-| [D Decomposition](modules/D_decomposition) | Does the composition/coefficient split attribute change over cohorts correctly? | Paper 3 |
-
-Each module folder has a `SPEC.md` (the claim, the design, the pass
-criteria, written before the runs), the run and analysis scripts, a
-`results/` folder, and a `REPORT.md`. The main results across modules are
-summarised in [FINDINGS.md](FINDINGS.md).
-
-## Layout
+## Repository
 
 ```
-R/
-  population.R   market: groups, education, space, institutions, utilities
-  matching.R     oracle choice, deferred acceptance, sequential search, calibration
-  estimate.R     choice sets (uniform, stratified + offset), clogit, KHB, predicted shares
-  run_helpers.R  the shared settings (oracle, gs, gs_w, seq) and per-market code
-tests/
-  test_matching.R  stability, one-to-one, meeting budget, calibration (Rscript tests/test_matching.R)
-modules/A_recovery ... modules/D_decomposition
-archive/2026_first_generation/   superseded work, kept for the record
+R/                    core library
+  population.R        markets, layouts, settings, utilities
+  matching.R          one-sided choice, Gale-Shapley, calibration of pairing
+  estimate.R          choice sets, conditional logit, KHB, predicted shares
+  run_helpers.R       the two settings, forming unions, the parallel cluster
+tests/test_core.R     tests of the core library
+A_recovery/           group size, segregation, sex differences, status vs homophily
+B_mediation/          mediation under unobserved confounding
+C_change_over_time/   decomposing change across two cohorts
 ```
+
+Each study folder has a README with its design, results and figures, a
+`run.R` that simulates, an `analyse.R` that summarises, and the outputs in
+`results/`.
 
 ## Running
 
-Requirements: R 4.x with `survival`, `parallel` and `splines` (base), and
-`ggplot2` for figures. Run everything from the repository root:
+R 4.x with `survival` and `ggplot2` (and the base packages `parallel` and
+`stats`). From the repository root:
 
 ```
-Rscript tests/test_matching.R
-Rscript modules/A_recovery/run_A.R
-Rscript modules/A_recovery/analyse_A.R
+Rscript tests/test_core.R
+Rscript A_recovery/run.R && Rscript A_recovery/analyse.R
+Rscript B_mediation/run.R && Rscript B_mediation/analyse.R
+Rscript C_change_over_time/run.R && Rscript C_change_over_time/analyse.R
 ```
 
-and likewise for B to D.
+- **Parallelism.** Simulations run in parallel on separate R processes,
+  using all but two cores. Each cell has its own random number stream,
+  given by the `seed` column in the results.
+- **Run time.** About 15, 12 and 9 minutes for A, B and C on a 12-core
+  laptop.
 
-Runs use a PSOCK cluster (separate R processes): forked workers crash
-`survival::clogit` on macOS. Each cell has its own RNG stream. Module D
-also sets seeds inside workers, so its exact numbers reproduce only with
-the same number of workers (`detectCores() - 2`); the averages do not
-depend on it. Every results file records the git
-commit and seed it was produced with. On a 12-core laptop each module's
-production run takes 15 to 40 minutes.
+## Citation
 
-## Status
-
-- A to D have been run and reported (October 2026). See `FINDINGS.md`.
-- Not yet: a written-up paper, and a release with a DOI. Results may change
-  as the work is reviewed.
+Lindmarker, Jesper. 2026. *What does a conditional logit of partner choice
+estimate when both partners have to agree? Simulation code and results.*
+Institute for Analytical Sociology, Linköping University.

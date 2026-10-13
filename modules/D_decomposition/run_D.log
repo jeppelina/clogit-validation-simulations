@@ -1,7 +1,0 @@
-[  1.3 min] done constant | oracle: same-group part -0.0012 (true +0.0000), constant part +0.0000, composition -0.1213
-[  2.9 min] done constant | gs: same-group part +0.0010 (true +0.0000), constant part +0.0110, composition -0.0621
-[  4.1 min] done harden | oracle: same-group part +0.0710 (true +0.0693), constant part +0.0003, composition -0.1237
-[  5.7 min] done harden | gs: same-group part +0.0697 (true +0.0665), constant part +0.0070, composition -0.0608
-[  6.9 min] done soften | oracle: same-group part -0.0893 (true -0.0871), constant part +0.0002, composition -0.1217
-[  8.5 min] done soften | gs: same-group part -0.1359 (true -0.1271), constant part +0.0200, composition -0.0634
-Done.

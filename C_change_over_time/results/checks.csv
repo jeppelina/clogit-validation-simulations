@@ -1,0 +1,9 @@
+"check","value","bound","pass"
+"constant tastes, one_sided : same-group part = 0",0.00489387258537661,0.005,TRUE
+"constant tastes, two_sided : same-group part = 0",0.00149989194045907,0.005,TRUE
+"constant tastes, one_sided : change in same-group coefficient = 0",0.0293478896191831,0.0306772326897207,TRUE
+"constant tastes, two_sided : change in same-group coefficient = 0",0.0095289204313952,0.0343554831267165,TRUE
+"harden one_sided : sign agreement >= 95%",1,0.95,TRUE
+"harden two_sided : sign agreement >= 95%",1,0.95,TRUE
+"soften one_sided : sign agreement >= 95%",0.995,0.95,TRUE
+"soften two_sided : sign agreement >= 95%",1,0.95,TRUE
