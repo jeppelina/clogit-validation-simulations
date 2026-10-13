@@ -119,6 +119,40 @@ one-sided.
   not change how strongly the pair is assortative. It changes how that is
   split between the groups' coefficients.
 
+### It is a specification issue, not a logit issue (`explain_loglinear.R`, 20 reps)
+
+Three groups, identical tastes, Gale-Shapley, everyone pairs. Estimated
+group-specific diagonal (same-group) terms:
+
+| Model | Shares | g1 (largest) | g2 | g3 |
+|---|---|---|---|---|
+| Logit, no alter-group constants (the specification above) | 70/20/10 | 1.29 | 2.24 | 2.44 |
+| | 85/10/5 | 0.90 | 2.57 | 2.66 |
+| Logit with alter-group constants, egos from all groups pooled | 70/20/10 | 1.91 | 1.86 | 1.80 |
+| | 85/10/5 | 1.81 | 1.87 | 1.74 |
+| Log-linear (Poisson) on the 3 x 3 couple table: row + column + group diagonals | 70/20/10 | 1.91 | 1.87 | 1.81 |
+| | 85/10/5 | 1.81 | 1.84 | 1.70 |
+
+MC SEs are 0.06 to 0.09 for the last two models.
+
+- **The logit with alter-group constants and the log-linear model give the
+  same numbers** (the known equivalence; Logan 1996; Jarvis's blog).
+- **Both are free of group size**: equal across groups and stable across
+  compositions.
+- The alter-group constants carry the column margin: how attainable each
+  group's members are as partners, given two-sided matching. Without them,
+  that margin is absorbed by the same-group term, which is where the
+  group-size dependence comes from.
+- **The precise claim** is therefore that a same-group coefficient
+  estimated without the alter side's margin moves with group size. That
+  covers a model without alter-group constants, and a model fitted on egos
+  from one group only, where the constants and the same-group term cannot
+  be separated.
+- Paper 3's design (Swedish-origin egos only) is in the second category,
+  which is why Module D finds what it finds. A model that also uses the
+  minority groups' unions (the rest of the couple table) would not have
+  the problem.
+
 ## 3. Under two-sided matching and segregation, distance does not fully absorb spatial endogamy
 
 Distance is in the model (`with_dist`):

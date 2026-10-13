@@ -44,29 +44,38 @@ homophily** (Module B).
 - **Educational homogamy estimated from couples is evidence of sorting,
   not of a taste for similarity.**
 
-**4. The same-group coefficient depends on group size, so a shrinking
-majority looks like hardening** (Modules A and D).
-- With identical tastes, larger groups get smaller same-group coefficients
-  and smaller groups larger ones. At 90/8/2: majority 0.49, 8% group 1.59,
-  relative to the pair surplus.
-- When the majority shrinks across cohorts, Paper 3's composition/coefficient
-  decomposition reports a coefficient change toward endogamy (+3 to +4
-  points of majority endogamy) even when tastes do not change. That is 23
-  to 51% of the composition component, depending on taste strength.
+**4. A same-group coefficient estimated from one side of the market depends
+on group size, so a shrinking majority looks like hardening** (Modules A and
+D).
+- With identical tastes and no alter-group constants, larger groups get
+  smaller same-group coefficients and smaller groups larger ones. At 90/8/2:
+  majority 0.49, 8% group 1.59, relative to the pair surplus.
+- **This is a specification issue, not a flaw of conditional logit.**
+  - Pooling egos from all groups and adding alter-group constants (the
+    column margin) removes it.
+  - That model gives the same numbers as a log-linear model of the couple
+    table, whose odds ratios are free of group size, as the log-linear
+    tradition says.
+- A design that uses egos from one group only cannot include that margin.
+- In such a design (Paper 3's: Swedish-origin egos), when the majority
+  shrinks across cohorts the composition/coefficient decomposition reports
+  a coefficient change toward endogamy (+3 to +4 points of majority
+  endogamy) even when tastes do not change. That is 23 to 51% of the
+  composition component, depending on taste strength.
 - The effect is robust to:
   - which sex proposes;
   - the outside option;
   - market size;
   - which sex is the ego;
-  - Paper 3's own alter-category specification.
+  - Paper 3's alter-category specification.
 - Real changes in tastes keep their sign when they are larger than the
   bias. The bias is an upward shift, so a real softening smaller than it
   would be reported as hardening.
 - An independent code review re-implemented the pipeline and reproduced
   the result. It persists with no sampling of alternatives.
-- **A margin-free measure, the log odds ratio of the couple table, stays
-  flat when tastes are flat and moves when they move.** It is a check that
-  can be run on the register data.
+- **The couple-table log odds ratio (or a log-linear association term)
+  stays flat when tastes are flat and moves when they move.** It is a check
+  that can be run on the register data.
 
 **5. KHB mediation shares are clean with a well-specified homogamy term;
 coarse measures and two-sided matching distort them** (Module C).
