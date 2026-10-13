@@ -16,16 +16,24 @@ module's `REPORT.md`.
 
 ## Five claims
 
-**1. With two-sided matching, the model estimates a property of the pair,
-scaled down by search frictions** (Module A).
-- With balanced groups the estimates track the sum of both sides'
-  coefficients (the pair surplus).
+**1. A well-specified conditional logit does what it aims to do, up to a
+scale set by search frictions** (Module A).
+- Well-specified means:
+  - egos from every group pooled;
+  - one same-group term per group;
+  - alter-group constants.
+- Under one-sided choice it recovers the true tastes.
+- Under two-sided matching it recovers the same quantity as a log-linear
+  model of the couple table: the pair-level assortativity, equal across
+  groups and stable from 33/33/33 to 85/10/5. Choice-set size and
+  stratified sampling (with the offset) do not matter.
 - The scale depends on how many potential partners people actually meet:
-  0.96 when everyone meets everyone, about 0.6 when people meet about 17
-  before pairing.
-- The scale is shared closely, though not exactly, across coefficients.
-- **Absolute coefficient sizes say as much about the market as about
-  tastes.** Comparisons of relative size are safer.
+  0.95 when everyone meets everyone, about 0.65 at about 17 meetings.
+  **Absolute coefficient sizes say as much about the market as about
+  tastes.**
+- **Limit:** under heavy residential segregation, two-sided matching shifts
+  about 10% of the weight from distance to the same-group terms, even in
+  this specification.
 
 **2. It cannot say which sex holds a taste** (Module B).
 - Worlds where only men, only women, or both care about ancestry give
