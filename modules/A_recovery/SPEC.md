@@ -66,6 +66,15 @@ surplus) under two-sided matching.
      this, since its estimate is too noisy.
 3. **Two-sided, A0 and A1:** `full` agrees with `loglinear` within 0.05.
 
+**Amendment (2026-10-13, after the 3-rep smoke test, before any production
+results):**
+- Each check passes if the deviation is within its tolerance (0.02 or
+  0.05) **or** within 2.5 Monte Carlo standard errors, whichever is larger.
+- Reason: the alter-group constants make the small groups' terms noisier.
+  A fixed 0.02 bound would fail on simulation noise alone.
+- The log-linear agreement check keeps a fixed 0.05: both models are fitted
+  to the same markets, so their difference has little noise.
+
 Expected to fail, and reported as demonstrations:
 - `no_constants` and `one_group` under two-sided matching;
 - `full` without distance in A2;
