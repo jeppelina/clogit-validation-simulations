@@ -37,16 +37,19 @@ cat("\n== Sanity: one-sided truth model recovers b_z and -1 ==\n")
 o <- s[s$setting == "oracle", c("bz", "gamma", "setting_coef_truth", "edu_coef_truth")]
 print(o, digits = 3, row.names = FALSE)
 
-# Figure: bias in the three quantities, relative to the truth model's value
-# where it is non-zero (setting, education); share in absolute points.
+# Figure: bias in the three quantities. Coefficient biases are expressed in
+# units of the true homogamy coefficient (|education coefficient| in the truth
+# model), so one-sided and two-sided markets, whose coefficients differ in
+# scale by about 2, are comparable. The share is in absolute points.
+u <- abs(s$edu_coef_truth)
 long <- rbind(
   data.frame(s[, c("bz", "gamma", "setting")], what = "Setting coefficient",
-             v = s$bias_setting, se = s$bias_setting_mcse),
-  data.frame(s[, c("bz", "gamma", "setting")], what = "Education coefficient (direct homogamy)",
-             v = s$bias_education, se = s$bias_education_mcse),
+             v = s$bias_setting / u, se = s$bias_setting_mcse / u),
+  data.frame(s[, c("bz", "gamma", "setting")], what = "Direct homogamy",
+             v = s$bias_education / u, se = s$bias_education_mcse / u),
   data.frame(s[, c("bz", "gamma", "setting")], what = "Mediation share",
              v = s$bias_share, se = s$bias_share_mcse))
-long$what <- factor(long$what, c("Setting coefficient", "Education coefficient (direct homogamy)", "Mediation share"))
+long$what <- factor(long$what, c("Setting coefficient", "Direct homogamy", "Mediation share"))
 long$bz <- factor(long$bz, c(0, 1, 2.5), c("Placebo setting (b_z = 0)", "Weaker setting (b_z = 1)", "Strong setting (b_z = 2.5)"))
 long$setting <- factor(long$setting, c("oracle", "gs"), c("One-sided", "Two-sided (Gale-Shapley)"))
 p <- ggplot(long, aes(gamma, v, colour = setting)) +
@@ -55,7 +58,7 @@ p <- ggplot(long, aes(gamma, v, colour = setting)) +
   facet_grid(what ~ bz, scales = "free_y") +
   scale_x_continuous(breaks = c(0, 0.5, 1)) +
   labs(x = "Confounding strength (gamma: weight of the unobserved trait in partner choice)",
-       y = "Bias (researcher minus truth)", colour = NULL,
+       y = "Bias: coefficients in units of the true homogamy coefficient; share in points", colour = NULL,
        title = "Where unobserved confounding lands in a mediation analysis",
        subtitle = "The trait also sorts people into settings. Truth = same model with the trait controlled. 200 reps.") +
   theme_minimal(base_size = 10) + theme(legend.position = "bottom")
