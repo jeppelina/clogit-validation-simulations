@@ -88,6 +88,37 @@ assumes, and the coefficient absorbs the difference.
 - **When composition changes over time** (Paper 3), the coefficient changes
   even if tastes do not. Module D tests this directly.
 
+### Why, in one table (`explain_group_size.R`, 20 reps, two groups, everyone pairs)
+
+| Shares | Setting | Majority's coefficient | Minority's coefficient | Sum | Couple-table log odds ratio | Majority endogamy | Minority endogamy |
+|---|---|---|---|---|---|---|---|
+| 50/50 | oracle | 0.98 | 0.98 | 1.96 | 1.97 | 0.73 | 0.73 |
+| 70/30 | oracle | 1.01 | 0.99 | 2.00 | 2.00 | 0.87 | 0.54 |
+| 90/10 | oracle | 1.00 | 1.00 | 2.01 | 2.00 | 0.96 | 0.23 |
+| 50/50 | gs | 1.89 | 1.90 | 3.79 | 3.79 | 0.87 | 0.87 |
+| 70/30 | gs | 1.53 | 2.24 | 3.76 | 3.76 | 0.91 | 0.80 |
+| 90/10 | gs | 0.95 | 2.72 | 3.67 | 3.66 | 0.96 | 0.63 |
+
+**Under oracle**, each group's coefficient is about 1 at every composition.
+The logit's adjustment for group size is exactly right when choices are
+one-sided.
+
+**Under Gale-Shapley:**
+- Mixed couples are shared: each one is an out-marriage for one majority
+  person and one minority person. In the table the two kinds of mixed
+  couple are always equal in number (37.5 and 37.5 at 90/10). Under oracle
+  they are not (36 and 77).
+- The same 37 mixed couples are 4% of majority men's unions but 37% of
+  minority men's.
+- The logit judges each group's endogamy against that group's own share of
+  the pool. So the minority (63% endogamous against 10% availability) gets
+  a large coefficient, and the majority (96% against 90%) a small one.
+  Tastes are the same.
+- **The sum of the two coefficients equals the couple-table log odds ratio
+  and is stable across compositions** (3.79, 3.76, 3.67). Group size does
+  not change how strongly the pair is assortative. It changes how that is
+  split between the groups' coefficients.
+
 ## 3. Under two-sided matching and segregation, distance does not fully absorb spatial endogamy
 
 Distance is in the model (`with_dist`):
