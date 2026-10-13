@@ -69,9 +69,11 @@ w <- s[s$spec %in% c("full", "loglinear", "no_constants", "one_group"), c("block
 print(w, digits = 3, row.names = FALSE)
 
 # ---- figure: same-group rho by group, full vs no_constants, over group shares ----
+# 90/8/2 is left out: its smallest group (~15 egos) separates in about a
+# quarter of markets, and the resulting means say nothing about bias.
 d <- s[s$block %in% c("A0", "A1") & s$spec %in% c("full", "no_constants") & grepl("diag", s$term) &
-       !tiny(s$cell, s$term), ]
-d$cell <- factor(d$cell, c("33/33/33", "70/20/10", "85/10/5", "90/8/2"))
+       s$cell != "90/8/2", ]
+d$cell <- factor(d$cell, c("33/33/33", "70/20/10", "85/10/5"))
 d$group <- factor(d$term, paste0("diag_g", 1:3), c("largest group", "middle group", "smallest group"))
 d$spec <- factor(d$spec, c("full", "no_constants"),
                  c("Well specified (alter-group constants)", "Without alter-group constants"))

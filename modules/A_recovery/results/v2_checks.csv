@@ -1,0 +1,155 @@
+"check","block","cell","design","term","value","pass"
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A0","70/20/10","oracle uniform_J100","diag_g1",0.0086856375873896,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A0","70/20/10","oracle uniform_J100","diag_g2",0.000949323424285664,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A0","70/20/10","oracle uniform_J100","diag_g3",0.0202112164407071,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A0","70/20/10","oracle uniform_J100","edu_diff",0.00200043666973171,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A1","33/33/33","oracle uniform_J100","diag_g1",0.0160068312526573,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A1","33/33/33","oracle uniform_J100","diag_g2",-0.00229894236157102,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A1","33/33/33","oracle uniform_J100","diag_g3",0.00955729136795092,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A1","33/33/33","oracle uniform_J100","edu_diff",0.00199382572236884,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A1","85/10/5","oracle uniform_J100","diag_g1",-0.06915086062643,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A1","85/10/5","oracle uniform_J100","diag_g2",0.0714504293007576,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A1","85/10/5","oracle uniform_J100","diag_g3",-0.0500229622819673,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A1","85/10/5","oracle uniform_J100","edu_diff",-0.000595960310153965,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A1","90/8/2","oracle uniform_J100","diag_g1",-0.772462586102255,FALSE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A1","90/8/2","oracle uniform_J100","diag_g2",0.78914396408895,FALSE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A1","90/8/2","oracle uniform_J100","edu_diff",0.000839941314044523,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A2","segregation 0","oracle uniform_J100","diag_g1",-0.0321228445280556,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A2","segregation 0","oracle uniform_J100","diag_g2",0.0366787953167023,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A2","segregation 0","oracle uniform_J100","diag_g3",0.0387899426704328,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A2","segregation 0","oracle uniform_J100","edu_diff",0.00319082827239292,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A2","segregation 0","oracle uniform_J100","ln_dist",0.0079057627511312,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A2","segregation 0.5","oracle uniform_J100","diag_g1",0.00409727629769407,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A2","segregation 0.5","oracle uniform_J100","diag_g2",0.00558147898237316,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A2","segregation 0.5","oracle uniform_J100","diag_g3",0.0212122775057484,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A2","segregation 0.5","oracle uniform_J100","edu_diff",-0.000706101382036306,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A2","segregation 0.5","oracle uniform_J100","ln_dist",0.0111939363713127,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A2","segregation 0.9","oracle uniform_J100","diag_g1",0.00353750550023779,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A2","segregation 0.9","oracle uniform_J100","diag_g2",-0.0101996212684589,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A2","segregation 0.9","oracle uniform_J100","diag_g3",-0.011740889960369,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A2","segregation 0.9","oracle uniform_J100","edu_diff",-0.0030035180751935,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A2","segregation 0.9","oracle uniform_J100","ln_dist",0.00205569036135334,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A3","sampling","oracle strat_offset","diag_g1",0.0173867130210461,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A3","sampling","oracle strat_offset","diag_g2",-0.0335166727344056,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A3","sampling","oracle strat_offset","diag_g3",-0.00937690726105123,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A3","sampling","oracle strat_offset","edu_diff",0.00137427520374689,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A3","sampling","oracle uniform_J100","diag_g1",0.0170032359277239,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A3","sampling","oracle uniform_J100","diag_g2",-0.0309284897240083,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A3","sampling","oracle uniform_J100","diag_g3",-0.0130606418412585,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A3","sampling","oracle uniform_J100","edu_diff",0.000130096707569471,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A3","sampling","oracle uniform_J30","diag_g1",0.0150994948160574,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A3","sampling","oracle uniform_J30","diag_g2",-0.0341744530599563,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A3","sampling","oracle uniform_J30","diag_g3",-0.0203601644316523,TRUE
+"oracle |rho - 1| < max(0.02, 2.5 MCSE)","A3","sampling","oracle uniform_J30","edu_diff",0.0010115619009643,TRUE
+"groups equal: range < max(0.05, 2.5 sqrt(2) max MCSE)","A3","sampling","gs strat_offset","range of diag rho",0.0135343521664036,TRUE
+"groups equal: range < max(0.05, 2.5 sqrt(2) max MCSE)","A3","sampling","seq strat_offset","range of diag rho",0.0630864746548694,FALSE
+"groups equal: range < max(0.05, 2.5 sqrt(2) max MCSE)","A1","33/33/33","gs uniform_J100","range of diag rho",0.00744959193021166,TRUE
+"groups equal: range < max(0.05, 2.5 sqrt(2) max MCSE)","A0","70/20/10","gs uniform_J100","range of diag rho",0.0341273800466684,TRUE
+"groups equal: range < max(0.05, 2.5 sqrt(2) max MCSE)","A1","85/10/5","gs uniform_J100","range of diag rho",0.0252301735174318,TRUE
+"groups equal: range < max(0.05, 2.5 sqrt(2) max MCSE)","A1","90/8/2","gs uniform_J100","range of diag rho",0.512892479539302,FALSE
+"groups equal: range < max(0.05, 2.5 sqrt(2) max MCSE)","A3","sampling","gs uniform_J100","range of diag rho",0.0166896186413463,TRUE
+"groups equal: range < max(0.05, 2.5 sqrt(2) max MCSE)","A2","segregation 0","gs uniform_J100","range of diag rho",0.0161989649563101,TRUE
+"groups equal: range < max(0.05, 2.5 sqrt(2) max MCSE)","A2","segregation 0.5","gs uniform_J100","range of diag rho",0.0163199518739948,TRUE
+"groups equal: range < max(0.05, 2.5 sqrt(2) max MCSE)","A2","segregation 0.9","gs uniform_J100","range of diag rho",0.0595363548080414,TRUE
+"groups equal: range < max(0.05, 2.5 sqrt(2) max MCSE)","A1","33/33/33","seq uniform_J100","range of diag rho",0.00188147266990368,TRUE
+"groups equal: range < max(0.05, 2.5 sqrt(2) max MCSE)","A0","70/20/10","seq uniform_J100","range of diag rho",0.0416045457020982,TRUE
+"groups equal: range < max(0.05, 2.5 sqrt(2) max MCSE)","A1","85/10/5","seq uniform_J100","range of diag rho",0.049390000945834,TRUE
+"groups equal: range < max(0.05, 2.5 sqrt(2) max MCSE)","A1","90/8/2","seq uniform_J100","range of diag rho",0.407340281403866,FALSE
+"groups equal: range < max(0.05, 2.5 sqrt(2) max MCSE)","A3","sampling","seq uniform_J100","range of diag rho",0.0642143919543389,FALSE
+"groups equal: range < max(0.05, 2.5 sqrt(2) max MCSE)","A2","segregation 0","seq uniform_J100","range of diag rho",0.0504246318774623,FALSE
+"groups equal: range < max(0.05, 2.5 sqrt(2) max MCSE)","A2","segregation 0.5","seq uniform_J100","range of diag rho",0.0501265288165947,FALSE
+"groups equal: range < max(0.05, 2.5 sqrt(2) max MCSE)","A2","segregation 0.9","seq uniform_J100","range of diag rho",0.0507284815324702,FALSE
+"groups equal: range < max(0.05, 2.5 sqrt(2) max MCSE)","A3","sampling","gs uniform_J30","range of diag rho",0.0114511860890676,TRUE
+"groups equal: range < max(0.05, 2.5 sqrt(2) max MCSE)","A3","sampling","seq uniform_J30","range of diag rho",0.0635567604394359,FALSE
+"within max(0.05, 2.5 MCSE) of A0","A1","33/33/33","gs uniform_J100","diag_g1",0.0247842263619749,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A1","33/33/33","gs uniform_J100","diag_g2",-0.0109770406535432,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A1","33/33/33","gs uniform_J100","diag_g3",-0.0133355777402568,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A1","33/33/33","gs uniform_J100","edu_diff",-0.00611212226943514,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A1","33/33/33","seq uniform_J100","diag_g1",-0.0121454836422314,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A1","33/33/33","seq uniform_J100","diag_g2",-0.00144135734167683,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A1","33/33/33","seq uniform_J100","diag_g3",0.0311125198268859,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A1","33/33/33","seq uniform_J100","edu_diff",-0.00491302269875438,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A1","85/10/5","gs uniform_J100","diag_g1",0.0311006985073672,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A1","85/10/5","gs uniform_J100","diag_g2",-0.00161459078129755,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A1","85/10/5","gs uniform_J100","diag_g3",-0.028256855056733,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A1","85/10/5","gs uniform_J100","edu_diff",0.00203226704646131,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A1","85/10/5","seq uniform_J100","diag_g1",-0.0249734129004545,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A1","85/10/5","seq uniform_J100","diag_g2",0.0353487292488186,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A1","85/10/5","seq uniform_J100","diag_g3",0.0354611005509369,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A1","85/10/5","seq uniform_J100","edu_diff",0.0199219656958114,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A1","90/8/2","gs uniform_J100","diag_g1",-0.218464613200619,FALSE
+"within max(0.05, 2.5 MCSE) of A0","A1","90/8/2","gs uniform_J100","diag_g2",0.266116191253377,FALSE
+"within max(0.05, 2.5 MCSE) of A0","A1","90/8/2","gs uniform_J100","edu_diff",-0.0685153211085984,FALSE
+"within max(0.05, 2.5 MCSE) of A0","A1","90/8/2","seq uniform_J100","diag_g1",-0.194228765038281,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A1","90/8/2","seq uniform_J100","diag_g2",0.224043657569024,FALSE
+"within max(0.05, 2.5 MCSE) of A0","A1","90/8/2","seq uniform_J100","edu_diff",0.0189604349023491,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A2","segregation 0","gs uniform_J100","diag_g1",0.00745268891228679,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A2","segregation 0","gs uniform_J100","diag_g2",-0.0174694849002305,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A2","segregation 0","gs uniform_J100","diag_g3",-0.0394841548179026,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A2","segregation 0","gs uniform_J100","edu_diff",-0.0130179062185692,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A2","segregation 0","seq uniform_J100","diag_g1",-0.00210417490119774,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A2","segregation 0","seq uniform_J100","diag_g2",-0.0231367157160756,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A2","segregation 0","seq uniform_J100","diag_g3",-0.0109242610765619,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A2","segregation 0","seq uniform_J100","edu_diff",-0.0108512216405169,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A2","segregation 0.5","gs uniform_J100","diag_g1",0.0091758489546,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A2","segregation 0.5","gs uniform_J100","diag_g2",-0.00983754432707007,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A2","segregation 0.5","gs uniform_J100","diag_g3",-0.0319732011624269,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A2","segregation 0.5","gs uniform_J100","edu_diff",-0.0140116142408344,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A2","segregation 0.5","seq uniform_J100","diag_g1",0.0189458608937546,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A2","segregation 0.5","seq uniform_J100","diag_g2",-0.0118806154069867,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A2","segregation 0.5","seq uniform_J100","diag_g3",0.010423877779258,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A2","segregation 0.5","seq uniform_J100","edu_diff",-0.0169465519966758,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A2","segregation 0.9","gs uniform_J100","diag_g1",0.0494077596900191,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A2","segregation 0.9","gs uniform_J100","diag_g2",0.0806324394127541,FALSE
+"within max(0.05, 2.5 MCSE) of A0","A2","segregation 0.9","gs uniform_J100","diag_g3",0.0684879917554226,FALSE
+"within max(0.05, 2.5 MCSE) of A0","A2","segregation 0.9","gs uniform_J100","edu_diff",-0.0191407362900231,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A2","segregation 0.9","seq uniform_J100","diag_g1",0.0998573242485942,FALSE
+"within max(0.05, 2.5 MCSE) of A0","A2","segregation 0.9","seq uniform_J100","diag_g2",0.0852921567927745,FALSE
+"within max(0.05, 2.5 MCSE) of A0","A2","segregation 0.9","seq uniform_J100","diag_g3",0.0907333884182221,FALSE
+"within max(0.05, 2.5 MCSE) of A0","A2","segregation 0.9","seq uniform_J100","edu_diff",-0.041681049609026,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A3","sampling","gs strat_offset","diag_g1",0.0101520830717881,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A3","sampling","gs strat_offset","diag_g2",-0.00652274569455613,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A3","sampling","gs strat_offset","diag_g3",-0.0104409448084767,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A3","sampling","gs strat_offset","edu_diff",-0.00450811724411126,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A3","sampling","gs uniform_J100","diag_g1",0.00859466635536732,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A3","sampling","gs uniform_J100","diag_g2",-0.00302739008859276,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A3","sampling","gs uniform_J100","diag_g3",-0.0093806468886124,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A3","sampling","gs uniform_J100","edu_diff",-0.00339699410971084,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A3","sampling","gs uniform_J30","diag_g1",0.0120756319267229,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A3","sampling","gs uniform_J30","diag_g2",-0.00478485706951592,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A3","sampling","gs uniform_J30","diag_g3",-0.0114993872378637,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A3","sampling","gs uniform_J30","edu_diff",-0.007438548691312,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A3","sampling","seq strat_offset","diag_g1",0.017301662306844,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A3","sampling","seq strat_offset","diag_g2",-0.00282743850262546,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A3","sampling","seq strat_offset","diag_g3",-0.00418026664592719,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A3","sampling","seq strat_offset","edu_diff",0.00195668775156843,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A3","sampling","seq uniform_J100","diag_g1",0.0178487375987028,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A3","sampling","seq uniform_J100","diag_g2",-0.003228154863679,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A3","sampling","seq uniform_J100","diag_g3",-0.00476110865353796,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A3","sampling","seq uniform_J100","edu_diff",0.00178191365086133,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A3","sampling","seq uniform_J30","diag_g1",0.0194905517483445,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A3","sampling","seq uniform_J30","diag_g2",-0.000237160176789764,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A3","sampling","seq uniform_J30","diag_g3",-0.00246166298899331,TRUE
+"within max(0.05, 2.5 MCSE) of A0","A3","sampling","seq uniform_J30","edu_diff",0.0026553849572466,TRUE
+"agrees with log-linear within 0.05","A0","70/20/10","gs uniform_J100","diag_g1",-0.00185269553921352,TRUE
+"agrees with log-linear within 0.05","A0","70/20/10","gs uniform_J100","diag_g2",0.000989010989680961,TRUE
+"agrees with log-linear within 0.05","A0","70/20/10","gs uniform_J100","diag_g3",0.00503988463989102,TRUE
+"agrees with log-linear within 0.05","A0","70/20/10","seq uniform_J100","diag_g1",0.000146736020275706,TRUE
+"agrees with log-linear within 0.05","A0","70/20/10","seq uniform_J100","diag_g2",0.00150983974178598,TRUE
+"agrees with log-linear within 0.05","A0","70/20/10","seq uniform_J100","diag_g3",0.000221250662462369,TRUE
+"agrees with log-linear within 0.05","A1","33/33/33","gs uniform_J100","diag_g1",0.0017476947524786,TRUE
+"agrees with log-linear within 0.05","A1","33/33/33","gs uniform_J100","diag_g2",-0.00030366988285413,TRUE
+"agrees with log-linear within 0.05","A1","33/33/33","gs uniform_J100","diag_g3",0.000777050072071739,TRUE
+"agrees with log-linear within 0.05","A1","33/33/33","seq uniform_J100","diag_g1",0.0019959295440829,TRUE
+"agrees with log-linear within 0.05","A1","33/33/33","seq uniform_J100","diag_g2",0.000959583687329513,TRUE
+"agrees with log-linear within 0.05","A1","33/33/33","seq uniform_J100","diag_g3",7.22718536627642e-06,TRUE
+"agrees with log-linear within 0.05","A1","85/10/5","gs uniform_J100","diag_g1",0.00617751888880558,TRUE
+"agrees with log-linear within 0.05","A1","85/10/5","gs uniform_J100","diag_g2",-0.00229382404837075,TRUE
+"agrees with log-linear within 0.05","A1","85/10/5","gs uniform_J100","diag_g3",0.000382752372468098,TRUE
+"agrees with log-linear within 0.05","A1","85/10/5","seq uniform_J100","diag_g1",0.000400188732472717,TRUE
+"agrees with log-linear within 0.05","A1","85/10/5","seq uniform_J100","diag_g2",0.00299745391211315,TRUE
+"agrees with log-linear within 0.05","A1","85/10/5","seq uniform_J100","diag_g3",0.00690798731330766,TRUE
+"agrees with log-linear within 0.05","A1","90/8/2","gs uniform_J100","diag_g1",0.266046562945686,FALSE
+"agrees with log-linear within 0.05","A1","90/8/2","gs uniform_J100","diag_g2",-0.210646290328679,FALSE
+"agrees with log-linear within 0.05","A1","90/8/2","seq uniform_J100","diag_g1",0.214696951036848,FALSE
+"agrees with log-linear within 0.05","A1","90/8/2","seq uniform_J100","diag_g2",-0.191524256749393,FALSE
